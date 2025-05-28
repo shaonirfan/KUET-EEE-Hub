@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, type ChangeEvent, type FormEvent } from 'react';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X } from 'lucide-react';
+import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface Resource {
