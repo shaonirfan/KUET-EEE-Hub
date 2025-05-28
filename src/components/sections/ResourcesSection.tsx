@@ -1,11 +1,11 @@
 
 'use client';
 
-import React, { useState, useMemo, type ChangeEvent, type FormEvent } from 'react';
+import React, { useState, useMemo, type ChangeEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Added Tabs
 import { Badge } from '@/components/ui/badge';
 import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -24,17 +24,19 @@ interface Resource {
 }
 
 const dummyResources: Resource[] = [
-  { id: '1', name: 'Analog Electronics Fundamentals', type: 'PDF', year: '2nd Year', semester: '1st Sem', category: 'Lecture Notes', isNew: true, isPopular: true, url: '#', tags: ['electronics', 'analog'] },
-  { id: '2', name: 'Advanced Digital Signal Processing', type: 'DOCX', year: '3rd Year', semester: '2nd Sem', category: 'Lecture Notes', isNew: false, isPopular: true, url: '#', tags: ['dsp', 'digital'] },
-  { id: '3', name: 'Modern VLSI Design Techniques', type: 'PPT', year: '4th Year', semester: '1st Sem', category: 'Presentations', isNew: true, isPopular: false, url: '#', tags: ['vlsi', 'design'] },
+  { id: '1', name: 'Analog Electronics Fundamentals', type: 'PDF', year: '1st Year', semester: '1st Sem', category: 'Lecture Notes', isNew: true, isPopular: true, url: '#', tags: ['electronics', 'analog'] },
+  { id: '2', name: 'Advanced Digital Signal Processing', type: 'DOCX', year: '2nd Year', semester: '2nd Sem', category: 'Lecture Notes', isNew: false, isPopular: true, url: '#', tags: ['dsp', 'digital'] },
+  { id: '3', name: 'Modern VLSI Design Techniques', type: 'PPT', year: '3rd Year', semester: '1st Sem', category: 'Presentations', isNew: true, isPopular: false, url: '#', tags: ['vlsi', 'design'] },
   { id: '4', name: 'Comprehensive Job Preparation Guide', type: 'PDF', year: 'All Years', semester: 'All Semesters', category: 'Job Preparation', isNew: false, isPopular: true, url: '#', tags: ['jobs', 'career'] },
   { id: '5', name: 'Communication Systems Lab Manual', type: 'PDF', year: '3rd Year', semester: '1st Sem', category: 'Lab Manuals', isNew: false, isPopular: false, url: '#', tags: ['communication', 'lab'] },
   { id: '6', name: 'Introduction to Control Systems', type: 'PDF', year: '2nd Year', semester: '2nd Sem', category: 'Books', isNew: false, isPopular: false, url: '#', tags: ['control systems', 'textbook'] },
+  { id: '7', name: 'Data Structures and Algorithms', type: 'PDF', year: '1st Year', semester: '2nd Sem', category: 'Lecture Notes', isNew: true, isPopular: false, url: '#', tags: ['dsa', 'programming'] },
+  { id: '8', name: 'Power Electronics Question Bank', type: 'PDF', year: '4th Year', semester: 'All Semesters', category: 'Past Papers', isNew: false, isPopular: true, url: '#', tags: ['power electronics', 'questions'] },
 ];
 
-const years = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'All Years'];
-const semesters = ['1st Sem', '2nd Sem', 'All Semesters'];
-const categories = ['Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Presentations', 'Job Preparation', 'All Categories'];
+const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
+const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
+const categories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Presentations', 'Job Preparation'];
 
 const getFileIcon = (type: Resource['type']) => {
   switch (type) {
@@ -47,27 +49,34 @@ const getFileIcon = (type: Resource['type']) => {
 
 export default function ResourcesSection() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedYear, setSelectedYear] = useState<string>('');
-  const [selectedSemester, setSelectedSemester] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('All Years');
+  const [selectedSemester, setSelectedSemester] = useState<string>('All Semesters');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
 
   const filteredResources = useMemo(() => {
     return dummyResources.filter(resource => 
       (resource.name.toLowerCase().includes(searchTerm.toLowerCase()) || resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) &&
-      (selectedYear && selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
-      (selectedSemester && selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
-      (selectedCategory && selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
+      (selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
+      (selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
+      (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
     );
   }, [searchTerm, selectedYear, selectedSemester, selectedCategory]);
 
   const resetFilters = () => {
     setSearchTerm('');
-    setSelectedYear('');
-    setSelectedSemester('');
-    setSelectedCategory('');
+    setSelectedYear('All Years');
+    setSelectedSemester('All Semesters');
+    setSelectedCategory('All Categories');
   };
   
-  const activeFiltersCount = [selectedYear, selectedSemester, selectedCategory, searchTerm].filter(Boolean).length;
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (searchTerm) count++;
+    if (selectedYear !== 'All Years') count++;
+    if (selectedSemester !== 'All Semesters') count++;
+    if (selectedCategory !== 'All Categories') count++;
+    return count;
+  }, [searchTerm, selectedYear, selectedSemester, selectedCategory]);
 
 
   return (
@@ -87,8 +96,9 @@ export default function ResourcesSection() {
           <CardTitle className="flex items-center gap-2 text-xl"><Filter size={20} /> Filter & Search Resources</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 items-end">
-            <div className="lg:col-span-2">
+          <div className="flex flex-col gap-6">
+            {/* Search Input */}
+            <div>
               <label htmlFor="search-resources" className="block text-sm font-medium text-muted-foreground mb-1.5">Search by Name or Tag</label>
               <div className="relative">
                 <Input
@@ -102,15 +112,54 @@ export default function ResourcesSection() {
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
               </div>
             </div>
+
+            {/* Year Tabs */}
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
+              <Tabs defaultValue="All Years" value={selectedYear} onValueChange={setSelectedYear}>
+                <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5">
+                  {years.map(year => (
+                    <TabsTrigger key={year} value={year}>
+                      {year === 'All Years' ? 'All' : year.replace(' Year', '')}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+
+            {/* Semester Tabs */}
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Semester</label>
+              <Tabs defaultValue="All Semesters" value={selectedSemester} onValueChange={setSelectedSemester}>
+                <TabsList className="grid w-full grid-cols-3">
+                  {semesters.map(sem => (
+                    <TabsTrigger key={sem} value={sem}>
+                      {sem === 'All Semesters' ? 'All' : sem.replace(' Sem', '')}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
             
-            <FilterSelect label="Year" value={selectedYear} onValueChange={setSelectedYear} options={years} placeholder="All Years" />
-            <FilterSelect label="Semester" value={selectedSemester} onValueChange={setSelectedSemester} options={semesters} placeholder="All Semesters" />
-            <FilterSelect label="Category" value={selectedCategory} onValueChange={setSelectedCategory} options={categories} placeholder="All Categories" className="md:col-span-2 lg:col-span-1" />
+            {/* Category Tabs */}
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
+              <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1 h-auto flex-wrap">
+                  {categories.map(cat => (
+                    <TabsTrigger key={cat} value={cat} className="flex-grow">
+                      {cat === 'All Categories' ? 'All' : cat}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
             
-            <div className="md:col-start-2 lg:col-start-4 flex justify-end items-center mt-2 lg:mt-0">
+            {/* Clear Filters Button */}
+            <div className="flex justify-end items-center mt-2">
               {activeFiltersCount > 0 && (
                 <Button variant="ghost" onClick={resetFilters} className="text-sm">
-                  <X size={16} className="mr-1.5" /> Clear Filters ({activeFiltersCount})
+                  <X size={16} className="mr-1.5" /> Clear Selections ({activeFiltersCount})
                 </Button>
               )}
             </div>
@@ -156,7 +205,7 @@ export default function ResourcesSection() {
         <div className="text-center py-16">
           <Search className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
           <p className="text-2xl font-semibold text-muted-foreground">No resources found.</p>
-          <p className="text-md text-muted-foreground mt-2">Try adjusting your search or filters, or check back later.</p>
+          <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections, or check back later.</p>
         </div>
       )}
       
@@ -184,33 +233,31 @@ export default function ResourcesSection() {
   );
 }
 
-interface FilterSelectProps {
-  label: string;
-  value: string;
-  onValueChange: (value: string) => void;
-  options: string[];
-  placeholder: string;
-  className?: string;
-}
+// FilterSelect component and its props are no longer needed.
+// interface FilterSelectProps {
+//   label: string;
+//   value: string;
+//   onValueChange: (value: string) => void;
+//   options: string[];
+//   placeholder: string;
+//   className?: string;
+// }
 
-function FilterSelect({ label, value, onValueChange, options, placeholder, className }: FilterSelectProps) {
-  return (
-    <div className={className}>
-      <label htmlFor={`filter-${label.toLowerCase()}`} className="block text-sm font-medium text-muted-foreground mb-1.5">{label}</label>
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger id={`filter-${label.toLowerCase()}`} className="text-base">
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>{label}</SelectLabel>
-            {/* The SelectItem with value="" was causing the error and is not needed here as "All X" options are part of the 'options' array. */}
-            {/* The SelectValue's placeholder prop handles displaying the placeholder text when the Select's value is "". */}
-            {options.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </div>
-  );
-}
-
+// function FilterSelect({ label, value, onValueChange, options, placeholder, className }: FilterSelectProps) {
+//   return (
+//     <div className={className}>
+//       <label htmlFor={`filter-${label.toLowerCase()}`} className="block text-sm font-medium text-muted-foreground mb-1.5">{label}</label>
+//       <Select value={value} onValueChange={onValueChange}>
+//         <SelectTrigger id={`filter-${label.toLowerCase()}`} className="text-base">
+//           <SelectValue placeholder={placeholder} />
+//         </SelectTrigger>
+//         <SelectContent>
+//           <SelectGroup>
+//             <SelectLabel>{label}</SelectLabel>
+//             {options.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+//           </SelectGroup>
+//         </SelectContent>
+//       </Select>
+//     </div>
+//   );
+// }
