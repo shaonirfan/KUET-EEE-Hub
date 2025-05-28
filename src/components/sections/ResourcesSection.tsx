@@ -204,7 +204,8 @@ function FilterSelect({ label, value, onValueChange, options, placeholder, class
         <SelectContent>
           <SelectGroup>
             <SelectLabel>{label}</SelectLabel>
-            <SelectItem value="">{placeholder}</SelectItem>
+            {/* The SelectItem with value="" was causing the error and is not needed here as "All X" options are part of the 'options' array. */}
+            {/* The SelectValue's placeholder prop handles displaying the placeholder text when the Select's value is "". */}
             {options.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
           </SelectGroup>
         </SelectContent>
