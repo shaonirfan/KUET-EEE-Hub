@@ -63,7 +63,7 @@ export async function GET() {
   const { GOOGLE_PROJECT_ID, GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_DRIVE_FOLDER_ID } = process.env;
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || !GOOGLE_DRIVE_FOLDER_ID) {
-    console.error("Google Drive API environment variables are not set.");
+    console.error("Google Drive API environment variables are not set. Ensure GOOGLE_PROJECT_ID, GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, and GOOGLE_DRIVE_FOLDER_ID are configured.");
     // Fallback to dummy data or return an error
     return NextResponse.json({ message: "Server configuration error: Missing Google Drive API credentials or Folder ID." }, { status: 500 });
   }
@@ -147,3 +147,4 @@ const dummyResources: Resource[] = [
   { id: '7', name: 'Data Structures and Algorithms', type: 'PDF', year: '1st Year', semester: '2nd Sem', category: 'Lecture Notes', isNew: true, isPopular: false, url: '#', tags: ['dsa', 'programming'] },
   { id: '8', name: 'Power Electronics Question Bank', type: 'PDF', year: '4th Year', semester: 'All Semesters', category: 'Past Papers', isNew: false, isPopular: true, url: '#', tags: ['power electronics', 'questions'] },
 ];
+
