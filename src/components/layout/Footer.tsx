@@ -24,7 +24,7 @@ export default function Footer() {
           <div>
             <h3 className="text-base font-semibold mb-3 text-foreground">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link href="#about" className="text-sm text-muted-foreground hover:text-primary transition-colors">About KUET EEE</Link></li>
+              {/* <li><Link href="#about" className="text-sm text-muted-foreground hover:text-primary transition-colors">About KUET EEE</Link></li> // Removed */}
               <li><Link href="#resources" className="text-sm text-muted-foreground hover:text-primary transition-colors">Course Resources</Link></li>
               <li><Link href="#contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact & Contributions</Link></li>
             </ul>
