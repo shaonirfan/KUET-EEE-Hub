@@ -34,12 +34,6 @@ export default function HeroSection() {
               <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="shadow-sm hover:shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
-            <Link href="#about">
-              <BookOpen className="mr-2 h-5 w-5" />
-              Explore Program
-            </Link>
-          </Button>
           {/* Optional CTA for Job Prep Hub */}
           {/* 
           <Button asChild variant="ghost" size="lg" className="text-muted-foreground hover:text-primary transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out">
