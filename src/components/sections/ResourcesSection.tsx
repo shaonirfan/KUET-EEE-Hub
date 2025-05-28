@@ -1,16 +1,17 @@
 
 'use client';
 
-import React, { useState, useMemo, type ChangeEvent } from 'react';
+import React, { useState, useMemo, useEffect, type ChangeEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Added Tabs
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, ArrowRight } from 'lucide-react';
+import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, ArrowRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface Resource {
+export interface Resource {
   id: string;
   name: string;
   type: 'PDF' | 'DOCX' | 'PPT' | 'OTHER';
@@ -23,16 +24,7 @@ interface Resource {
   tags?: string[];
 }
 
-const dummyResources: Resource[] = [
-  { id: '1', name: 'Analog Electronics Fundamentals', type: 'PDF', year: '1st Year', semester: '1st Sem', category: 'Lecture Notes', isNew: true, isPopular: true, url: '#', tags: ['electronics', 'analog'] },
-  { id: '2', name: 'Advanced Digital Signal Processing', type: 'DOCX', year: '2nd Year', semester: '2nd Sem', category: 'Lecture Notes', isNew: false, isPopular: true, url: '#', tags: ['dsp', 'digital'] },
-  { id: '3', name: 'Modern VLSI Design Techniques', type: 'PPT', year: '3rd Year', semester: '1st Sem', category: 'Presentations', isNew: true, isPopular: false, url: '#', tags: ['vlsi', 'design'] },
-  { id: '4', name: 'Comprehensive Job Preparation Guide', type: 'PDF', year: 'All Years', semester: 'All Semesters', category: 'Job Preparation', isNew: false, isPopular: true, url: '#', tags: ['jobs', 'career'] },
-  { id: '5', name: 'Communication Systems Lab Manual', type: 'PDF', year: '3rd Year', semester: '1st Sem', category: 'Lab Manuals', isNew: false, isPopular: false, url: '#', tags: ['communication', 'lab'] },
-  { id: '6', name: 'Introduction to Control Systems', type: 'PDF', year: '2nd Year', semester: '2nd Sem', category: 'Books', isNew: false, isPopular: false, url: '#', tags: ['control systems', 'textbook'] },
-  { id: '7', name: 'Data Structures and Algorithms', type: 'PDF', year: '1st Year', semester: '2nd Sem', category: 'Lecture Notes', isNew: true, isPopular: false, url: '#', tags: ['dsa', 'programming'] },
-  { id: '8', name: 'Power Electronics Question Bank', type: 'PDF', year: '4th Year', semester: 'All Semesters', category: 'Past Papers', isNew: false, isPopular: true, url: '#', tags: ['power electronics', 'questions'] },
-];
+// Removed dummyResources as it will be fetched from API
 
 const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
 const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
@@ -41,26 +33,56 @@ const categories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manua
 const getFileIcon = (type: Resource['type']) => {
   switch (type) {
     case 'PDF': return <FileText className="h-5 w-5 text-primary" />;
-    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />;
+    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />; // Assuming DOCX can be represented by FileArchive
     case 'PPT': return <Presentation className="h-5 w-5 text-primary" />;
     default: return <FileText className="h-5 w-5 text-primary" />;
   }
 };
 
 export default function ResourcesSection() {
+  const [allResources, setAllResources] = useState<Resource[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('All Years');
   const [selectedSemester, setSelectedSemester] = useState<string>('All Semesters');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
 
+  useEffect(() => {
+    const fetchResources = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/resources');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch resources: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setAllResources(data);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
+        }
+        setAllResources([]); // Clear resources on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchResources();
+  }, []);
+
   const filteredResources = useMemo(() => {
-    return dummyResources.filter(resource => 
+    if (isLoading) return [];
+    return allResources.filter(resource =>
       (resource.name.toLowerCase().includes(searchTerm.toLowerCase()) || resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) &&
       (selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
       (selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
       (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
     );
-  }, [searchTerm, selectedYear, selectedSemester, selectedCategory]);
+  }, [searchTerm, selectedYear, selectedSemester, selectedCategory, allResources, isLoading]);
 
   const resetFilters = () => {
     setSearchTerm('');
@@ -68,7 +90,7 @@ export default function ResourcesSection() {
     setSelectedSemester('All Semesters');
     setSelectedCategory('All Categories');
   };
-  
+
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (searchTerm) count++;
@@ -108,6 +130,7 @@ export default function ResourcesSection() {
                   value={searchTerm}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pr-10 text-base"
+                  disabled={isLoading}
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
               </div>
@@ -119,7 +142,7 @@ export default function ResourcesSection() {
               <Tabs defaultValue="All Years" value={selectedYear} onValueChange={setSelectedYear}>
                 <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5">
                   {years.map(year => (
-                    <TabsTrigger key={year} value={year}>
+                    <TabsTrigger key={year} value={year} disabled={isLoading}>
                       {year === 'All Years' ? 'All' : year.replace(' Year', '')}
                     </TabsTrigger>
                   ))}
@@ -133,32 +156,32 @@ export default function ResourcesSection() {
               <Tabs defaultValue="All Semesters" value={selectedSemester} onValueChange={setSelectedSemester}>
                 <TabsList className="grid w-full grid-cols-3">
                   {semesters.map(sem => (
-                    <TabsTrigger key={sem} value={sem}>
+                    <TabsTrigger key={sem} value={sem} disabled={isLoading}>
                       {sem === 'All Semesters' ? 'All' : sem.replace(' Sem', '')}
                     </TabsTrigger>
                   ))}
                 </TabsList>
               </Tabs>
             </div>
-            
+
             {/* Category Tabs */}
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
               <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
                 <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1 h-auto flex-wrap">
                   {categories.map(cat => (
-                    <TabsTrigger key={cat} value={cat} className="flex-grow">
+                    <TabsTrigger key={cat} value={cat} className="flex-grow" disabled={isLoading}>
                       {cat === 'All Categories' ? 'All' : cat}
                     </TabsTrigger>
                   ))}
                 </TabsList>
               </Tabs>
             </div>
-            
+
             {/* Clear Filters Button */}
             <div className="flex justify-end items-center mt-2">
               {activeFiltersCount > 0 && (
-                <Button variant="ghost" onClick={resetFilters} className="text-sm">
+                <Button variant="ghost" onClick={resetFilters} className="text-sm" disabled={isLoading}>
                   <X size={16} className="mr-1.5" /> Clear Selections ({activeFiltersCount})
                 </Button>
               )}
@@ -168,7 +191,40 @@ export default function ResourcesSection() {
       </Card>
 
       {/* Resource List */}
-      {filteredResources.length > 0 ? (
+      {isLoading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <Card key={index} className="flex flex-col bg-card">
+              <CardHeader className="pb-3">
+                <Skeleton className="h-5 w-5 mb-2" />
+                <Skeleton className="h-4 w-1/4 mb-2" />
+                <Skeleton className="h-6 w-3/4 mb-1" />
+                <Skeleton className="h-3 w-1/2" />
+              </CardHeader>
+              <CardContent className="flex-grow pt-0 pb-3">
+                <div className="flex flex-wrap gap-1 mt-1">
+                  <Skeleton className="h-5 w-12 rounded-full" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+              </CardContent>
+              <CardFooter className="pt-0">
+                <Skeleton className="h-9 w-full" />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {!isLoading && error && (
+        <div className="text-center py-16">
+          <XCircle className="h-20 w-20 text-destructive mx-auto mb-6" />
+          <p className="text-2xl font-semibold text-destructive">Error loading resources.</p>
+          <p className="text-md text-muted-foreground mt-2">{error}</p>
+          <Button onClick={() => window.location.reload()} className="mt-4">Try Again</Button>
+        </div>
+      )}
+
+      {!isLoading && !error && filteredResources.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredResources.map(resource => (
             <Card key={resource.id} className="flex flex-col bg-card hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
@@ -201,14 +257,16 @@ export default function ResourcesSection() {
             </Card>
           ))}
         </div>
-      ) : (
+      )}
+
+      {!isLoading && !error && filteredResources.length === 0 && (
         <div className="text-center py-16">
           <Search className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
           <p className="text-2xl font-semibold text-muted-foreground">No resources found.</p>
           <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections, or check back later.</p>
         </div>
       )}
-      
+
       {/* Contribute Resources CTA */}
       <div className="mt-16 md:mt-24 text-center">
         <Card className="inline-block p-6 md:p-10 shadow-xl border-primary/20 bg-gradient-to-br from-card to-muted/30 dark:from-card dark:to-muted/20 max-w-2xl mx-auto">
@@ -221,7 +279,7 @@ export default function ResourcesSection() {
               Help your fellow students by contributing valuable study materials, notes, or job preparation guides. Your contributions make this hub better!
             </p>
             <Button asChild size="lg" className="group shadow-md hover:shadow-primary/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
-              <Link href="#contact"> 
+              <Link href="#contact">
                 Contribute Here
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
@@ -233,31 +291,24 @@ export default function ResourcesSection() {
   );
 }
 
-// FilterSelect component and its props are no longer needed.
-// interface FilterSelectProps {
-//   label: string;
-//   value: string;
-//   onValueChange: (value: string) => void;
-//   options: string[];
-//   placeholder: string;
-//   className?: string;
-// }
-
-// function FilterSelect({ label, value, onValueChange, options, placeholder, className }: FilterSelectProps) {
-//   return (
-//     <div className={className}>
-//       <label htmlFor={`filter-${label.toLowerCase()}`} className="block text-sm font-medium text-muted-foreground mb-1.5">{label}</label>
-//       <Select value={value} onValueChange={onValueChange}>
-//         <SelectTrigger id={`filter-${label.toLowerCase()}`} className="text-base">
-//           <SelectValue placeholder={placeholder} />
-//         </SelectTrigger>
-//         <SelectContent>
-//           <SelectGroup>
-//             <SelectLabel>{label}</SelectLabel>
-//             {options.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-//           </SelectGroup>
-//         </SelectContent>
-//       </Select>
-//     </div>
-//   );
-// }
+// XCircle icon component for error display
+function XCircle(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="15" y1="9" x2="9" y2="15" />
+      <line x1="9" y1="9" x2="15" y2="15" />
+    </svg>
+  );
+}
