@@ -18,6 +18,7 @@ export default {
   	extend: {
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'], // Use Inter as primary sans-serif
+        display: ['Bree Serif', 'serif'], // Added Bree Serif for display purposes
       },
   		colors: {
   			background: 'hsl(var(--background))',
