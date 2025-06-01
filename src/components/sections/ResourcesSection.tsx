@@ -7,16 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, ArrowRight, Loader2, Info } from 'lucide-react'; // Added Info
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Resource {
   id: string;
-  name: string;
+  name: string; // This will be the actual filename
   type: 'PDF' | 'DOCX' | 'PPT' | 'OTHER';
   year: string;
   semester: string;
+  courseName?: string; // Added for displaying course name
   category: string;
   isNew: boolean;
   isPopular: boolean;
@@ -24,16 +25,18 @@ export interface Resource {
   tags?: string[];
 }
 
-// Removed dummyResources as it will be fetched from API
-
 const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
 const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
-const categories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Presentations', 'Job Preparation'];
+// Categories will be derived from folder names, but we can keep a default list for filter UI
+// The actual categories will depend on your folder names like "Lecture Notes", "Question Banks" etc.
+// This list is for the filter UI. If a category from Drive isn't here, it won't show in this specific filter UI unless added.
+const categories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Presentations', 'Job Preparation', 'Uncategorized'];
+
 
 const getFileIcon = (type: Resource['type']) => {
   switch (type) {
     case 'PDF': return <FileText className="h-5 w-5 text-primary" />;
-    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />; // Assuming DOCX can be represented by FileArchive
+    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />; 
     case 'PPT': return <Presentation className="h-5 w-5 text-primary" />;
     default: return <FileText className="h-5 w-5 text-primary" />;
   }
@@ -48,6 +51,9 @@ export default function ResourcesSection() {
   const [selectedYear, setSelectedYear] = useState<string>('All Years');
   const [selectedSemester, setSelectedSemester] = useState<string>('All Semesters');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>(categories);
+
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -56,17 +62,24 @@ export default function ResourcesSection() {
       try {
         const response = await fetch('/api/resources');
         if (!response.ok) {
-          throw new Error(`Failed to fetch resources: ${response.statusText}`);
+          const errorData = await response.json().catch(() => ({ message: `Failed to fetch resources: ${response.statusText}` }));
+          throw new Error(errorData.message || `Failed to fetch resources: ${response.statusText}`);
         }
-        const data = await response.json();
+        const data: Resource[] = await response.json();
         setAllResources(data);
+
+        // Dynamically populate categories for the filter based on fetched data
+        const fetchedCategories = new Set<string>(data.map(r => r.category));
+        const updatedCategories = ['All Categories', ...Array.from(fetchedCategories).sort()];
+        setUniqueCategories(updatedCategories);
+
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
         } else {
           setError('An unknown error occurred');
         }
-        setAllResources([]); // Clear resources on error
+        setAllResources([]); 
       } finally {
         setIsLoading(false);
       }
@@ -77,7 +90,11 @@ export default function ResourcesSection() {
   const filteredResources = useMemo(() => {
     if (isLoading) return [];
     return allResources.filter(resource =>
-      (resource.name.toLowerCase().includes(searchTerm.toLowerCase()) || resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) &&
+      (
+        resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (resource.courseName && resource.courseName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      ) &&
       (selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
       (selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
       (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
@@ -108,25 +125,23 @@ export default function ResourcesSection() {
           Unlock Your Potential: Comprehensive EEE Resources
         </h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Find lecture notes, past papers, lab manuals, job preparation materials, and more. Use the filters or search to quickly locate what you need. Look for "New!" or "Popular" tags for curated content.
+          Find materials by year, semester, course, or category. Organize your files in Google Drive in a structure like <code>Year/Semester/Course Name/Category/file.ext</code> for automatic metadata.
         </p>
       </div>
 
-      {/* Filters and Search Card */}
       <Card className="mb-12 shadow-lg border-border/60 bg-card/80 backdrop-blur-sm">
         <CardHeader className="border-b border-border/40 pb-4">
           <CardTitle className="flex items-center gap-2 text-xl"><Filter size={20} /> Filter & Search Resources</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="flex flex-col gap-6">
-            {/* Search Input */}
             <div>
-              <label htmlFor="search-resources" className="block text-sm font-medium text-muted-foreground mb-1.5">Search by Name or Tag</label>
+              <label htmlFor="search-resources" className="block text-sm font-medium text-muted-foreground mb-1.5">Search by Name, Course, or Tag</label>
               <div className="relative">
                 <Input
                   id="search-resources"
                   type="text"
-                  placeholder="e.g., 'Analog Electronics', 'DSP', 'Job Prep'"
+                  placeholder="e.g., 'VLSI Design', 'Lecture 1', 'DSP', 'Job Prep'"
                   value={searchTerm}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pr-10 text-base"
@@ -136,7 +151,6 @@ export default function ResourcesSection() {
               </div>
             </div>
 
-            {/* Year Tabs */}
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
               <Tabs defaultValue="All Years" value={selectedYear} onValueChange={setSelectedYear}>
@@ -150,7 +164,6 @@ export default function ResourcesSection() {
               </Tabs>
             </div>
 
-            {/* Semester Tabs */}
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1.5">Semester</label>
               <Tabs defaultValue="All Semesters" value={selectedSemester} onValueChange={setSelectedSemester}>
@@ -164,13 +177,12 @@ export default function ResourcesSection() {
               </Tabs>
             </div>
 
-            {/* Category Tabs */}
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
               <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-1 h-auto flex-wrap">
-                  {categories.map(cat => (
-                    <TabsTrigger key={cat} value={cat} className="flex-grow" disabled={isLoading}>
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
+                  {uniqueCategories.map(cat => (
+                    <TabsTrigger key={cat} value={cat} className="flex-grow text-xs sm:text-sm" disabled={isLoading}>
                       {cat === 'All Categories' ? 'All' : cat}
                     </TabsTrigger>
                   ))}
@@ -178,7 +190,6 @@ export default function ResourcesSection() {
               </Tabs>
             </div>
 
-            {/* Clear Filters Button */}
             <div className="flex justify-end items-center mt-2">
               {activeFiltersCount > 0 && (
                 <Button variant="ghost" onClick={resetFilters} className="text-sm" disabled={isLoading}>
@@ -190,16 +201,15 @@ export default function ResourcesSection() {
         </CardContent>
       </Card>
 
-      {/* Resource List */}
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
             <Card key={index} className="flex flex-col bg-card">
               <CardHeader className="pb-3">
                 <Skeleton className="h-5 w-5 mb-2" />
-                <Skeleton className="h-4 w-1/4 mb-2" />
-                <Skeleton className="h-6 w-3/4 mb-1" />
-                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-4 w-3/4 mb-1" /> 
+                <Skeleton className="h-3 w-1/2 mb-2" /> 
+                <Skeleton className="h-3 w-1/3" /> 
               </CardHeader>
               <CardContent className="flex-grow pt-0 pb-3">
                 <div className="flex flex-wrap gap-1 mt-1">
@@ -216,12 +226,25 @@ export default function ResourcesSection() {
       )}
 
       {!isLoading && error && (
-        <div className="text-center py-16">
-          <XCircle className="h-20 w-20 text-destructive mx-auto mb-6" />
-          <p className="text-2xl font-semibold text-destructive">Error loading resources.</p>
-          <p className="text-md text-muted-foreground mt-2">{error}</p>
-          <Button onClick={() => window.location.reload()} className="mt-4">Try Again</Button>
-        </div>
+         <Card className="my-12 shadow-lg border-destructive/50 bg-destructive/10">
+            <CardHeader>
+                <CardTitle className="flex items-center text-destructive">
+                    <Info size={24} className="mr-2" /> Error Loading Resources
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-destructive-foreground/90">
+                    There was an issue fetching the resources from Google Drive.
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">Details: {error}</p>
+                <ul className="text-sm text-muted-foreground mt-3 list-disc list-inside">
+                    <li>Ensure the `GOOGLE_DRIVE_FOLDER_ID` in the backend code (`src/app/api/resources/route.ts`) is correctly set to the ID of your main resources folder in Google Drive.</li>
+                    <li>Make sure this main Google Drive folder is shared with the service account email (`kueteeehub@kuet-eee-hub.iam.gserviceaccount.com`) with "Viewer" permissions.</li>
+                    <li>Verify your folder structure (e.g. Year/Semester/Course/Category/file.ext).</li>
+                </ul>
+                <Button onClick={() => window.location.reload()} className="mt-4" variant="secondary">Try Again</Button>
+            </CardContent>
+        </Card>
       )}
 
       {!isLoading && !error && filteredResources.length > 0 && (
@@ -236,20 +259,24 @@ export default function ResourcesSection() {
                     {resource.isPopular && <Badge variant="secondary" className="text-xs px-1.5 py-0.5">Popular</Badge>}
                   </div>
                 </div>
-                <CardTitle className="text-lg leading-tight line-clamp-2">{resource.name}</CardTitle>
-                <CardDescription className="text-xs">{resource.category} &bull; {resource.year} &bull; {resource.semester}</CardDescription>
+                <CardTitle className="text-lg leading-tight line-clamp-2" title={resource.name}>{resource.name}</CardTitle>
+                <CardDescription className="text-xs truncate" title={`${resource.courseName ? resource.courseName + ' • ' : ''}${resource.category}`}>
+                    {resource.courseName ? `${resource.courseName} • ` : ''}{resource.category}
+                </CardDescription>
+                <CardDescription className="text-xs">{resource.year} &bull; {resource.semester}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow pt-0 pb-3">
                 {resource.tags && resource.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
                     {resource.tags.slice(0, 3).map(tag => <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5">{tag}</Badge>)}
+                    {resource.tags.length > 3 && <Badge variant="outline" className="text-xs px-1.5 py-0.5">+{resource.tags.length - 3}</Badge>}
                   </div>
                 )}
               </CardContent>
               <CardFooter className="pt-0">
                 <Button asChild size="sm" className="w-full group">
                   <Link href={resource.url} target="_blank" rel="noopener noreferrer">
-                    Download
+                    View / Download
                     <Download className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
                   </Link>
                 </Button>
@@ -259,15 +286,27 @@ export default function ResourcesSection() {
         </div>
       )}
 
-      {!isLoading && !error && filteredResources.length === 0 && (
-        <div className="text-center py-16">
+      {!isLoading && !error && filteredResources.length === 0 && allResources.length > 0 && (
+         <div className="text-center py-16">
           <Search className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
-          <p className="text-2xl font-semibold text-muted-foreground">No resources found.</p>
-          <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections, or check back later.</p>
+          <p className="text-2xl font-semibold text-muted-foreground">No resources match your current filters.</p>
+          <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections.</p>
+        </div>
+      )}
+      
+      {!isLoading && !error && allResources.length === 0 && (
+         <div className="text-center py-16">
+          <Info className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
+          <p className="text-2xl font-semibold text-muted-foreground">No resources found in Google Drive.</p>
+          <p className="text-md text-muted-foreground mt-2">
+            Please ensure files are present in the configured Google Drive folder and subfolders,
+            and that the folder structure (e.g. Year/Semester/Course/Category/file.ext) is followed.
+            Also, check sharing permissions and the `GOOGLE_DRIVE_FOLDER_ID` in the backend.
+          </p>
         </div>
       )}
 
-      {/* Contribute Resources CTA */}
+
       <div className="mt-16 md:mt-24 text-center">
         <Card className="inline-block p-6 md:p-10 shadow-xl border-primary/20 bg-gradient-to-br from-card to-muted/30 dark:from-card dark:to-muted/20 max-w-2xl mx-auto">
           <CardHeader className="p-0 mb-4">
@@ -276,7 +315,7 @@ export default function ResourcesSection() {
           </CardHeader>
           <CardContent className="p-0">
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Help your fellow students by contributing valuable study materials, notes, or job preparation guides. Your contributions make this hub better!
+              Help your fellow students by contributing valuable study materials. Please follow the established folder structure for easy integration.
             </p>
             <Button asChild size="lg" className="group shadow-md hover:shadow-primary/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
               <Link href="#contact">
@@ -291,24 +330,6 @@ export default function ResourcesSection() {
   );
 }
 
-// XCircle icon component for error display
-function XCircle(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="15" y1="9" x2="9" y2="15" />
-      <line x1="9" y1="9" x2="15" y2="15" />
-    </svg>
-  );
-}
+// XCircle icon component for error display - no longer used directly, Info is used
+// function XCircle(props: React.SVGProps<SVGSVGElement>) { /* ... */ }
+
