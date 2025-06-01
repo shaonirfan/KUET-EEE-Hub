@@ -3,6 +3,14 @@ import { NextResponse } from 'next/server';
 import type { Resource } from '@/components/sections/ResourcesSection'; // Adjust path if Resource type is moved
 import { google } from 'googleapis';
 
+// --- START OF HARDCODED CREDENTIALS (FOR TESTING ONLY - INSECURE FOR PRODUCTION) ---
+const GOOGLE_PROJECT_ID = "kuet-eee-hub";
+const GOOGLE_CLIENT_EMAIL = "kueteeehub@kuet-eee-hub.iam.gserviceaccount.com";
+const GOOGLE_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCpxmwklKJQlDVR\n5KMXM6FpJkJr6kujp47VqfKbtze07pn6czNwT/RopdS1+35+CKWnEVsTAoAejban\nolmjY3nf7AyNYa1swUryOG6XvZYHkAHzJa3SJIncSo4pXQlWjKWf1dPV9ZTjhYXC\nUZ8JtiZp8BJ8dUrzowK092OmbLOFsAB2DzY8kmXoV1bKGzlopIxoKctBYgMXrq2U\nQJcuJkIjK4I29V4hjIPC1MYXGEtm6ExiH2E/Cn/sMncwLJjfPG0KSAacQwjZ0pHI\nbaADaCyn9/aCBzmZWggn+GNsgBjgTMjbID9hASOoI0ZlAkkDEd+D3WqYHhbX4xEz\ngyOaFeMxAgMBAAECggEAJ+5+KBp3lPlPEzxyKbZgnCE+FTDN6qex/kpTQFHXPeyy\n9cfbzOpZY7XBcq49AbrZ75Iy+CUp6kXNtN8IM1hl5YeZKjXTuxU5ogAo7vLOE2hJ\nNR3jJN6oOFKm3k6+MAezuwTpptT02JDitaJKBFg978PiLTjPUL/CFrtrSk0d6m7o\n1iWu2e4aMmk3qH0liA+tK+p6mSQYrG7WUdaOIcxif4gw05xwcQEel6YLUrizR+5I\ndAkd6wePm1W+6hepKuGEkRzzsvBVdN1oNmIVfAf13XO7XIWcC2wL7m6KPOB+nm39\nbjRThAG004ojlRPA7VoAxhpMoflytFaa07szd4572QKBgQDrqFaCf/ckuKkysLmZ\njPt+mYxGf6GyN65otzmeiBRuou5MhKNsvuxFQo4m6Phfbl+B/cWoHd68rFQ6EQe+\nNqkmSADN/ULjiCE4CbqEErzU9I8J5KZ//5hE1n6ENVWMzqF2SGOmE6MT0XhR7QR/\nEAW6CqSdHcv+7j7Ok7UafPKZtQKBgQC4bi9ly3RdkZNzg5DwhtU35dr3jCvjJ83v\nX0RnX/wU65JgaBqfJQj+8FWV+Z5yoeyFoXL+G33Pm3y2xqo8IO2ytyA0VG5oAzLU\n3rCFQZVH6qdluxTNNr1yh8ApT/MLTVsLBhkd7RSTTSPB8+NIaEQapL3Cov//lfu6\n//aSYXzhDQKBgBeGEEyqlXMW89zZg01uo1Q546TN7Mgrgr91Os02bEO3A+6jduTO\nEiu/vwznSJPOIr6JJIfpo2hWE3pQZON59Vya52molFq+JgLABdxVOoBPgU/NgUlZ\nrEuC1dJAuK97mOaDx162qxq5WDdlX4OHh+rQUSpV5R0njyFz4SoputXZAoGAP5uo\n9zfLY3YQ39cxhvNJ2GSLN7N9c3PH/9XglrKxE1oH+v4MqHSyfJLRQc98yVZ1Z8U+\nDsvWgWLECZnNHr3QnUGxdrrj9TWdM3O2d88duFcC8wAp9Xj6r+SH7venAG/mhY/N\n29dnsEH7oioGanOjgXjuBZIILtNApccf+G5tDoUCgYBPEObhrwb5bts1I8tg52Po\nVYsw6QprIqrXsv7sjcbbQ1WTvfwasHxE+r30tM1QiPsx0WuMpnaANWK3McePxmTJ\nxNx3crJakdB0QbLbcdUc6Jw8UiU5vvJqfRmm0LQjreuTiJMVa1qfZcE4Z8fZwnF5\nEnL3g6k/J3kgYvEmKa3SwA==\n-----END PRIVATE KEY-----`;
+// IMPORTANT: Replace this with your actual Google Drive Folder ID
+const GOOGLE_DRIVE_FOLDER_ID = "YOUR_GOOGLE_DRIVE_FOLDER_ID_HERE"; 
+// --- END OF HARDCODED CREDENTIALS ---
+
 // Helper function to map Google Drive file types to your Resource['type']
 function getResourceType(mimeType?: string | null): Resource['type'] {
   if (!mimeType) return 'OTHER';
@@ -60,16 +68,16 @@ function extractMetadataFromName(name: string): Pick<Resource, 'year' | 'semeste
 
 
 export async function GET() {
-  const { GOOGLE_PROJECT_ID, GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_DRIVE_FOLDER_ID } = process.env;
-
-  if (!GOOGLE_PROJECT_ID || !GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || !GOOGLE_DRIVE_FOLDER_ID) {
-    console.error("Google Drive API environment variables are not set. Ensure GOOGLE_PROJECT_ID, GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, and GOOGLE_DRIVE_FOLDER_ID are configured.");
-    // Fallback to dummy data or return an error
-    return NextResponse.json({ message: "Server configuration error: Missing Google Drive API credentials or Folder ID." }, { status: 500 });
+  // Check if critical hardcoded values are set (especially the folder ID placeholder)
+  if (!GOOGLE_PROJECT_ID || !GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || GOOGLE_DRIVE_FOLDER_ID === "YOUR_GOOGLE_DRIVE_FOLDER_ID_HERE") {
+    console.error("Google Drive API credentials or Folder ID are not correctly set in the code. Ensure GOOGLE_PROJECT_ID, GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY are present and GOOGLE_DRIVE_FOLDER_ID is replaced with your actual folder ID.");
+    return NextResponse.json({ message: "Server configuration error: Missing Google Drive API credentials or Folder ID in the code. The placeholder GOOGLE_DRIVE_FOLDER_ID must be replaced." }, { status: 500 });
   }
   
-  // Replace \\n with \n in the private key if they were escaped for environment variable.
-  const privateKey = GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+  // The private key from the JSON file includes literal \n characters.
+  // When hardcoded as a template literal, these are preserved.
+  // If it were a regular string, they would need to be escaped as \\n.
+  const privateKey = GOOGLE_PRIVATE_KEY;
 
   try {
     const auth = new google.auth.GoogleAuth({
@@ -119,8 +127,6 @@ export async function GET() {
 
   } catch (error) {
     console.error("Failed to fetch resources from Google Drive:", error);
-    // Fallback to dummy data or return an error
-    // You might want more sophisticated error handling or logging here
     let errorMessage = "Failed to fetch resources from Google Drive.";
     if (error instanceof Error) {
         errorMessage += ` Details: ${error.message}`;
@@ -147,4 +153,3 @@ const dummyResources: Resource[] = [
   { id: '7', name: 'Data Structures and Algorithms', type: 'PDF', year: '1st Year', semester: '2nd Sem', category: 'Lecture Notes', isNew: true, isPopular: false, url: '#', tags: ['dsa', 'programming'] },
   { id: '8', name: 'Power Electronics Question Bank', type: 'PDF', year: '4th Year', semester: 'All Semesters', category: 'Past Papers', isNew: false, isPopular: true, url: '#', tags: ['power electronics', 'questions'] },
 ];
-
