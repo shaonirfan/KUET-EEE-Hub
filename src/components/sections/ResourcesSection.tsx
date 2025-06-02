@@ -73,13 +73,19 @@ export default function ResourcesSection() {
         setAllResources(data);
 
         const fetchedCourseNames = [...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort();
-        setUniqueCourseNames(['All Courses', ...fetchedCourseNames]);
+        setUniqueCourseNames(['All Courses', ...fetchedCourseNames.filter(cn => cn !== 'All Courses')]);
         
         const fetchedCategories = [...new Set(data.map(r => r.category).filter(Boolean))].sort();
-        setUniqueCategories(['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories' && !fetchedCategories.includes(sc)), ...fetchedCategories]);
+        // Ensure static categories are included and "All Categories" is first and unique
+        const combinedCategories = ['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories'), ...fetchedCategories.filter(fc => fc !== 'All Categories')];
+        setUniqueCategories([...new Set(combinedCategories)].sort((a, b) => {
+          if (a === 'All Categories') return -1;
+          if (b === 'All Categories') return 1;
+          return a.localeCompare(b);
+        }));
         
         const fetchedTeacherNames = [...new Set(data.map(r => r.teacherName).filter(Boolean as any))].sort();
-        setUniqueTeacherNames(['All Teachers', ...fetchedTeacherNames]);
+        setUniqueTeacherNames(['All Teachers', ...fetchedTeacherNames.filter(tn => tn !== 'All Teachers')]);
 
 
       } catch (err) {
@@ -211,19 +217,6 @@ export default function ResourcesSection() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
-                <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
-                    {uniqueCategories.map(cat => (
-                      <TabsTrigger key={cat} value={cat} className="flex-grow text-xs sm:text-sm" disabled={isLoading}>
-                        {cat === 'All Categories' ? 'All' : cat}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
-              </div>
-              
-              <div className="md:col-span-2"> {/* Teacher Name filter can span full width if it's the last in a row or on its own row */}
                 <label htmlFor="filter-teacher" className="block text-sm font-medium text-muted-foreground mb-1.5">
                   <UserSquare size={16} className="inline mr-1.5 relative -top-px" />Teacher Name
                 </label>
@@ -237,6 +230,19 @@ export default function ResourcesSection() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="md:col-span-2"> {/* Category filter spans full width */}
+                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
+                <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
+                    {uniqueCategories.map(cat => (
+                      <TabsTrigger key={cat} value={cat} className="flex-grow text-xs sm:text-sm" disabled={isLoading}>
+                        {cat === 'All Categories' ? 'All' : cat}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
               </div>
             </div>
 
@@ -382,3 +388,4 @@ export default function ResourcesSection() {
     </section>
   );
 }
+
