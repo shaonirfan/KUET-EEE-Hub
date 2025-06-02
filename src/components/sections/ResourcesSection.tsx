@@ -6,18 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, ArrowRight, Loader2, Info } from 'lucide-react'; // Added Info
+import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, Loader2, Info, BookUser, UserSquare } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Resource {
   id: string;
-  name: string; // This will be the actual filename
+  name: string; 
   type: 'PDF' | 'DOCX' | 'PPT' | 'OTHER';
   year: string;
   semester: string;
-  courseName?: string; // Added for displaying course name
+  courseName?: string; 
+  teacherName?: string; // New field for teacher name
   category: string;
   isNew: boolean;
   isPopular: boolean;
@@ -27,10 +29,8 @@ export interface Resource {
 
 const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
 const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
-// Categories will be derived from folder names, but we can keep a default list for filter UI
-// The actual categories will depend on your folder names like "Lecture Notes", "Question Banks" etc.
-// This list is for the filter UI. If a category from Drive isn't here, it won't show in this specific filter UI unless added.
-const categories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Presentations', 'Job Preparation', 'Uncategorized'];
+// Categories and Courses will be derived dynamically
+const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Presentations', 'Job Preparation', 'Uncategorized'];
 
 
 const getFileIcon = (type: Resource['type']) => {
@@ -50,9 +50,13 @@ export default function ResourcesSection() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('All Years');
   const [selectedSemester, setSelectedSemester] = useState<string>('All Semesters');
+  const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
+  const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>(categories);
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>(staticCategories);
+  const [uniqueCourseNames, setUniqueCourseNames] = useState<string[]>(['All Courses']);
+  const [uniqueTeacherNames, setUniqueTeacherNames] = useState<string[]>(['All Teachers']);
 
 
   useEffect(() => {
@@ -68,10 +72,14 @@ export default function ResourcesSection() {
         const data: Resource[] = await response.json();
         setAllResources(data);
 
-        // Dynamically populate categories for the filter based on fetched data
-        const fetchedCategories = new Set<string>(data.map(r => r.category));
-        const updatedCategories = ['All Categories', ...Array.from(fetchedCategories).sort()];
-        setUniqueCategories(updatedCategories);
+        const fetchedCategories = new Set<string>(data.map(r => r.category).filter(Boolean));
+        setUniqueCategories(['All Categories', ...Array.from(fetchedCategories).sort()]);
+
+        const fetchedCourseNames = new Set<string>(data.map(r => r.courseName).filter(Boolean as any));
+        setUniqueCourseNames(['All Courses', ...Array.from(fetchedCourseNames).sort()]);
+        
+        const fetchedTeacherNames = new Set<string>(data.map(r => r.teacherName).filter(Boolean as any));
+        setUniqueTeacherNames(['All Teachers', ...Array.from(fetchedTeacherNames).sort()]);
 
       } catch (err) {
         if (err instanceof Error) {
@@ -93,18 +101,23 @@ export default function ResourcesSection() {
       (
         resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (resource.courseName && resource.courseName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (resource.teacherName && resource.teacherName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       ) &&
       (selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
       (selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
+      (selectedCourseName !== 'All Courses' ? resource.courseName === selectedCourseName : true) &&
+      (selectedTeacherName !== 'All Teachers' ? resource.teacherName === selectedTeacherName : true) &&
       (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
     );
-  }, [searchTerm, selectedYear, selectedSemester, selectedCategory, allResources, isLoading]);
+  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory, allResources, isLoading]);
 
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedYear('All Years');
     setSelectedSemester('All Semesters');
+    setSelectedCourseName('All Courses');
+    setSelectedTeacherName('All Teachers');
     setSelectedCategory('All Categories');
   };
 
@@ -113,9 +126,11 @@ export default function ResourcesSection() {
     if (searchTerm) count++;
     if (selectedYear !== 'All Years') count++;
     if (selectedSemester !== 'All Semesters') count++;
+    if (selectedCourseName !== 'All Courses') count++;
+    if (selectedTeacherName !== 'All Teachers') count++;
     if (selectedCategory !== 'All Categories') count++;
     return count;
-  }, [searchTerm, selectedYear, selectedSemester, selectedCategory]);
+  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory]);
 
 
   return (
@@ -125,7 +140,7 @@ export default function ResourcesSection() {
           Unlock Your Potential: Comprehensive EEE Resources
         </h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Find materials by year, semester, course, or category. Organize your files in Google Drive in a structure like <code>Year/Semester/Course Name/Category/file.ext</code> for automatic metadata.
+          Find materials by year, semester, course, teacher, or category. Organize your files in Google Drive like <code>Year/Semester/Course/Teacher/Category/file.ext</code> for automatic metadata.
         </p>
       </div>
 
@@ -136,12 +151,12 @@ export default function ResourcesSection() {
         <CardContent className="p-6">
           <div className="flex flex-col gap-6">
             <div>
-              <label htmlFor="search-resources" className="block text-sm font-medium text-muted-foreground mb-1.5">Search by Name, Course, or Tag</label>
+              <label htmlFor="search-resources" className="block text-sm font-medium text-muted-foreground mb-1.5">Search by Name, Course, Teacher, or Tag</label>
               <div className="relative">
                 <Input
                   id="search-resources"
                   type="text"
-                  placeholder="e.g., 'VLSI Design', 'Lecture 1', 'DSP', 'Job Prep'"
+                  placeholder="e.g., 'VLSI Design', 'Monir Sir', 'Lecture 1', 'DSP'"
                   value={searchTerm}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pr-10 text-base"
@@ -150,6 +165,36 @@ export default function ResourcesSection() {
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
               </div>
             </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="filter-course" className="block text-sm font-medium text-muted-foreground mb-1.5">Course Name</label>
+                <Select value={selectedCourseName} onValueChange={setSelectedCourseName} disabled={isLoading || uniqueCourseNames.length <= 1}>
+                  <SelectTrigger id="filter-course">
+                    <SelectValue placeholder="Select Course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueCourseNames.map(course => (
+                      <SelectItem key={course} value={course}>{course}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label htmlFor="filter-teacher" className="block text-sm font-medium text-muted-foreground mb-1.5">Teacher Name</label>
+                <Select value={selectedTeacherName} onValueChange={setSelectedTeacherName} disabled={isLoading || uniqueTeacherNames.length <= 1}>
+                  <SelectTrigger id="filter-teacher">
+                    <SelectValue placeholder="Select Teacher" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueTeacherNames.map(teacher => (
+                      <SelectItem key={teacher} value={teacher}>{teacher}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
 
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
@@ -238,9 +283,9 @@ export default function ResourcesSection() {
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">Details: {error}</p>
                 <ul className="text-sm text-muted-foreground mt-3 list-disc list-inside">
-                    <li>Ensure the `GOOGLE_DRIVE_FOLDER_ID` in the backend code (`src/app/api/resources/route.ts`) is correctly set to the ID of your main resources folder in Google Drive.</li>
-                    <li>Make sure this main Google Drive folder is shared with the service account email (`kueteeehub@kuet-eee-hub.iam.gserviceaccount.com`) with "Viewer" permissions.</li>
-                    <li>Verify your folder structure (e.g. Year/Semester/Course/Category/file.ext).</li>
+                    <li>Ensure the `GOOGLE_DRIVE_FOLDER_ID` in the backend code (`src/app/api/resources/route.ts`) is correctly set.</li>
+                    <li>Make sure your Google Drive folder is shared with the service account email with "Viewer" permissions.</li>
+                    <li>Verify your folder structure (e.g. Year/Semester/Course/Teacher/Category/file.ext).</li>
                 </ul>
                 <Button onClick={() => window.location.reload()} className="mt-4" variant="secondary">Try Again</Button>
             </CardContent>
@@ -260,8 +305,10 @@ export default function ResourcesSection() {
                   </div>
                 </div>
                 <CardTitle className="text-lg leading-tight line-clamp-2" title={resource.name}>{resource.name}</CardTitle>
-                <CardDescription className="text-xs truncate" title={`${resource.courseName ? resource.courseName + ' • ' : ''}${resource.category}`}>
-                    {resource.courseName ? `${resource.courseName} • ` : ''}{resource.category}
+                <CardDescription className="text-xs truncate" title={`${resource.courseName ? resource.courseName : ''}${resource.teacherName && resource.teacherName !== 'All Teachers' ? ' • ' + resource.teacherName : ''} • ${resource.category}`}>
+                    {resource.courseName ? resource.courseName : ''}
+                    {resource.teacherName && resource.teacherName !== 'All Teachers' ? <><span className="mx-1">&bull;</span>{resource.teacherName}</> : ''}
+                    <span className="mx-1">&bull;</span>{resource.category}
                 </CardDescription>
                 <CardDescription className="text-xs">{resource.year} &bull; {resource.semester}</CardDescription>
               </CardHeader>
@@ -300,7 +347,7 @@ export default function ResourcesSection() {
           <p className="text-2xl font-semibold text-muted-foreground">No resources found in Google Drive.</p>
           <p className="text-md text-muted-foreground mt-2">
             Please ensure files are present in the configured Google Drive folder and subfolders,
-            and that the folder structure (e.g. Year/Semester/Course/Category/file.ext) is followed.
+            and that the folder structure (e.g. Year/Semester/Course/Teacher/Category/file.ext) is followed.
             Also, check sharing permissions and the `GOOGLE_DRIVE_FOLDER_ID` in the backend.
           </p>
         </div>
@@ -320,7 +367,7 @@ export default function ResourcesSection() {
             <Button asChild size="lg" className="group shadow-md hover:shadow-primary/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
               <Link href="#contact">
                 Contribute Here
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <Download className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
           </CardContent>
@@ -329,7 +376,4 @@ export default function ResourcesSection() {
     </section>
   );
 }
-
-// XCircle icon component for error display - no longer used directly, Info is used
-// function XCircle(props: React.SVGProps<SVGSVGElement>) { /* ... */ }
 
