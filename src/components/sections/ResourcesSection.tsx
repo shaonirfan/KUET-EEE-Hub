@@ -72,19 +72,21 @@ export default function ResourcesSection() {
         const data: Resource[] = await response.json();
         setAllResources(data);
 
-        const fetchedCourseNames = [...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort();
-        setUniqueCourseNames(['All Courses', ...fetchedCourseNames.filter(cn => cn !== 'All Courses')]);
-        
-        const fetchedCategories = [...new Set(data.map(r => r.category).filter(Boolean))].sort();
-        const combinedCategories = ['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories'), ...fetchedCategories.filter(fc => fc !== 'All Categories' && !staticCategories.includes(fc))];
+        const fetchedCourseNames = ['All Courses', ...[...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort()];
+        setUniqueCourseNames(fetchedCourseNames);
+
+        const fetchedCategoriesFromData = [...new Set(data.map(r => r.category).filter(Boolean))].sort();
+        const combinedCategories = ['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories'), ...fetchedCategoriesFromData.filter(fc => fc !== 'All Categories' && !staticCategories.includes(fc))];
         setUniqueCategories([...new Set(combinedCategories)].sort((a, b) => {
             if (a === 'All Categories') return -1;
             if (b === 'All Categories') return 1;
+            if (staticCategories.includes(a) && !staticCategories.includes(b)) return -1;
+            if (!staticCategories.includes(a) && staticCategories.includes(b)) return 1;
             return a.localeCompare(b);
         }));
-        
-        const fetchedTeacherNames = [...new Set(data.map(r => r.teacherName).filter(Boolean as any))].sort();
-        setUniqueTeacherNames(['All Teachers', ...fetchedTeacherNames.filter(tn => tn !== 'All Teachers')]);
+
+        const fetchedTeacherNames = ['All Teachers', ...[...new Set(data.map(r => r.teacherName).filter(Boolean as any))].sort()];
+        setUniqueTeacherNames(fetchedTeacherNames);
 
 
       } catch (err) {
@@ -363,27 +365,6 @@ export default function ResourcesSection() {
           </p>
         </div>
       )}
-
-
-      <div className="mt-16 md:mt-24 text-center">
-        <Card className="inline-block p-6 md:p-10 shadow-xl border-primary/20 bg-gradient-to-br from-card to-muted/30 dark:from-card dark:to-muted/20 max-w-2xl mx-auto">
-          <CardHeader className="p-0 mb-4">
-            <PlusCircle className="h-12 w-12 text-primary mx-auto mb-3" />
-            <CardTitle className="text-2xl md:text-3xl">Have a resource to share?</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Help your fellow students by contributing valuable study materials. Please follow the established folder structure for easy integration.
-            </p>
-            <Button asChild size="lg" className="group shadow-md hover:shadow-primary/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
-              <Link href="#contact">
-                Contribute Here
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
     </section>
   );
 }
