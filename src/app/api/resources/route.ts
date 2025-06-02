@@ -190,7 +190,7 @@ export async function GET() {
 
     console.log("Processing fetched files...");//Added log for start of file processing
     for (const file of driveFiles) {
-      // console.log(`Processing file: ${file.name} (ID: ${file.id})`);
+      // console.log(`Processing file: ${file.name} (ID: ${file.id})`);//Kept commented to avoid excessive logging unless needed
       if (!file.id || !file.name || !file.parents || file.parents.length === 0) {
         // console.log(`Skipping file ${file.name || file.id} due to missing essential info.`);//Kept commented to avoid excessive logging unless needed
         continue;
