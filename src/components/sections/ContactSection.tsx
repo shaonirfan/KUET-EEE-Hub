@@ -49,8 +49,8 @@ export default function ContactSection() {
                 <Facebook className="h-5 w-5 mt-1 text-primary shrink-0" />
                 <div>
                   <h4 className="font-medium text-foreground">Facebook</h4>
-                  <Link href="https://facebook.com/eee" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    facebook.com/eee (Example Link)
+                  <Link href="https://www.facebook.com/shaon.irfan/" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    facebook.com/shaon.irfan/
                   </Link>
                 </div>
               </div>
