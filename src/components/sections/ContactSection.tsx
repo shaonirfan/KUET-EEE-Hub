@@ -1,5 +1,6 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Phone, User, Info, Facebook, ExternalLink, MessageCircle, Briefcase } from 'lucide-react';
+import { Mail, User, Info, Facebook, ExternalLink, MessageCircle, Briefcase, Send } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -63,11 +64,13 @@ export default function ContactSection() {
                   <p className="text-sm text-muted-foreground">2003106</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3">
-                <Phone className="h-5 w-5 mt-1 text-primary shrink-0" />
+               <div className="flex items-start space-x-3">
+                <Send className="h-5 w-5 mt-1 text-primary shrink-0" />
                 <div>
-                  <h4 className="font-medium text-foreground">Phone</h4>
-                  <a href="tel:01798070970" className="text-sm text-muted-foreground hover:text-primary transition-colors">01798070970</a>
+                  <h4 className="font-medium text-foreground">Telegram</h4>
+                  <Link href="https://t.me/shaonirfan" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    t.me/shaonirfan
+                  </Link>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
@@ -82,7 +85,7 @@ export default function ContactSection() {
               <div className="pt-4 border-t border-border/40 mt-4">
                  <h4 className="font-medium text-foreground flex items-center"><Briefcase size={18} className="mr-2 text-primary" /> Contribution Guidance</h4>
                  <p className="text-sm text-muted-foreground mt-1">
-                   To contribute resources (notes, slides, job prep materials), please contact the site admin via phone or Facebook. You can share the materials directly or provide a Google Drive link.
+                   To contribute resources (notes, slides, job prep materials), please contact the site admin via Telegram or Facebook. You can share the materials directly or provide a Google Drive link.
                  </p>
                  <Button variant="outline" size="sm" className="mt-3 group">
                    <MessageCircle size={16} className="mr-2" /> Message Admin for Contribution
