@@ -8,17 +8,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, Loader2, Info, BookUser, UserSquare } from 'lucide-react';
+import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, Loader2, Info, BookUser, UserSquare, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Resource {
   id: string;
-  name: string; 
+  name: string;
   type: 'PDF' | 'DOCX' | 'PPT' | 'OTHER';
   year: string;
   semester: string;
-  courseName?: string; 
+  courseName?: string;
   teacherName?: string; // New field for teacher name
   category: string;
   isNew: boolean;
@@ -36,7 +36,7 @@ const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab
 const getFileIcon = (type: Resource['type']) => {
   switch (type) {
     case 'PDF': return <FileText className="h-5 w-5 text-primary" />;
-    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />; 
+    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />;
     case 'PPT': return <Presentation className="h-5 w-5 text-primary" />;
     default: return <FileText className="h-5 w-5 text-primary" />;
   }
@@ -53,7 +53,7 @@ export default function ResourcesSection() {
   const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
   const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
-  
+
   const [uniqueCategories, setUniqueCategories] = useState<string[]>(staticCategories);
   const [uniqueCourseNames, setUniqueCourseNames] = useState<string[]>(['All Courses']);
   const [uniqueTeacherNames, setUniqueTeacherNames] = useState<string[]>(['All Teachers']);
@@ -77,7 +77,7 @@ export default function ResourcesSection() {
 
         const fetchedCourseNames = new Set<string>(data.map(r => r.courseName).filter(Boolean as any));
         setUniqueCourseNames(['All Courses', ...Array.from(fetchedCourseNames).sort()]);
-        
+
         const fetchedTeacherNames = new Set<string>(data.map(r => r.teacherName).filter(Boolean as any));
         setUniqueTeacherNames(['All Teachers', ...Array.from(fetchedTeacherNames).sort()]);
 
@@ -87,7 +87,7 @@ export default function ResourcesSection() {
         } else {
           setError('An unknown error occurred');
         }
-        setAllResources([]); 
+        setAllResources([]);
       } finally {
         setIsLoading(false);
       }
@@ -165,36 +165,6 @@ export default function ResourcesSection() {
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="filter-course" className="block text-sm font-medium text-muted-foreground mb-1.5">Course Name</label>
-                <Select value={selectedCourseName} onValueChange={setSelectedCourseName} disabled={isLoading || uniqueCourseNames.length <= 1}>
-                  <SelectTrigger id="filter-course">
-                    <SelectValue placeholder="Select Course" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueCourseNames.map(course => (
-                      <SelectItem key={course} value={course}>{course}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label htmlFor="filter-teacher" className="block text-sm font-medium text-muted-foreground mb-1.5">Teacher Name</label>
-                <Select value={selectedTeacherName} onValueChange={setSelectedTeacherName} disabled={isLoading || uniqueTeacherNames.length <= 1}>
-                  <SelectTrigger id="filter-teacher">
-                    <SelectValue placeholder="Select Teacher" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueTeacherNames.map(teacher => (
-                      <SelectItem key={teacher} value={teacher}>{teacher}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
 
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
@@ -220,6 +190,39 @@ export default function ResourcesSection() {
                   ))}
                 </TabsList>
               </Tabs>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="filter-course" className="block text-sm font-medium text-muted-foreground mb-1.5">
+                  <BookUser size={16} className="inline mr-1.5 relative -top-px" />Course Name
+                </label>
+                <Select value={selectedCourseName} onValueChange={setSelectedCourseName} disabled={isLoading || uniqueCourseNames.length <= 1}>
+                  <SelectTrigger id="filter-course">
+                    <SelectValue placeholder="Select Course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueCourseNames.map(course => (
+                      <SelectItem key={course} value={course}>{course}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label htmlFor="filter-teacher" className="block text-sm font-medium text-muted-foreground mb-1.5">
+                  <UserSquare size={16} className="inline mr-1.5 relative -top-px" />Teacher Name
+                </label>
+                <Select value={selectedTeacherName} onValueChange={setSelectedTeacherName} disabled={isLoading || uniqueTeacherNames.length <= 1}>
+                  <SelectTrigger id="filter-teacher">
+                    <SelectValue placeholder="Select Teacher" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueTeacherNames.map(teacher => (
+                      <SelectItem key={teacher} value={teacher}>{teacher}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div>
@@ -252,9 +255,9 @@ export default function ResourcesSection() {
             <Card key={index} className="flex flex-col bg-card">
               <CardHeader className="pb-3">
                 <Skeleton className="h-5 w-5 mb-2" />
-                <Skeleton className="h-4 w-3/4 mb-1" /> 
-                <Skeleton className="h-3 w-1/2 mb-2" /> 
-                <Skeleton className="h-3 w-1/3" /> 
+                <Skeleton className="h-4 w-3/4 mb-1" />
+                <Skeleton className="h-3 w-1/2 mb-2" />
+                <Skeleton className="h-3 w-1/3" />
               </CardHeader>
               <CardContent className="flex-grow pt-0 pb-3">
                 <div className="flex flex-wrap gap-1 mt-1">
@@ -340,7 +343,7 @@ export default function ResourcesSection() {
           <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections.</p>
         </div>
       )}
-      
+
       {!isLoading && !error && allResources.length === 0 && (
          <div className="text-center py-16">
           <Info className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
@@ -367,7 +370,7 @@ export default function ResourcesSection() {
             <Button asChild size="lg" className="group shadow-md hover:shadow-primary/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
               <Link href="#contact">
                 Contribute Here
-                <Download className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
           </CardContent>
@@ -376,4 +379,3 @@ export default function ResourcesSection() {
     </section>
   );
 }
-
