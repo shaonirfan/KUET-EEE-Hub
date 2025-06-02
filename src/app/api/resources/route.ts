@@ -11,9 +11,11 @@ const GOOGLE_DRIVE_FOLDER_ID = "13JvPCZ-9J7jTURIh-znRoo4Gly4FraH4";
 // --- END OF HARDCODED CREDENTIALS ---
 
 
-interface ApiResource extends Resource {
+interface ApiResource extends Omit<Resource, 'url'> { // Ensure this matches the frontend Resource type minus 'url'
   courseName?: string;
   teacherName?: string;
+  viewUrl: string;
+  downloadUrl: string;
 }
 
 
@@ -32,8 +34,8 @@ function extractMetadataFromPath(
   let year = 'All Years';
   let semester = 'All Semesters';
   let courseName = 'General';
-  let teacherName = 'All Teachers';
   let category = 'Uncategorized';
+  let teacherName = 'All Teachers';
   const tags: string[] = [];
 
   // console.log(`Extracting metadata for: ${fileName} with path: ${folderPathSegments.join('/')}`);
@@ -47,7 +49,7 @@ function extractMetadataFromPath(
     else if (firstSegmentLower.includes('job prep')) {
       year = 'All Years';
       semester = 'All Semesters';
-      courseName = 'Job Preparation';
+      courseName = 'Job Preparation'; // This is a special courseName
       tags.push('job-preparation');
 
       // For Job Prep: Structure is Job Prep / Category / Teacher (Optional)
@@ -63,11 +65,12 @@ function extractMetadataFromPath(
           tags.push(teacherName.toLowerCase().replace(/\s+/g, '-'));
         }
       }
-      // teacherName defaults to 'All Teachers' if not found after category
+       // teacherName defaults to 'All Teachers' if not found after category
     }
     if (year !== 'All Years' && !tags.includes(year.toLowerCase().replace(' ', '-'))) tags.push(year.toLowerCase().replace(' ', '-'));
   }
 
+  // Standard path for non-Job Prep: Year / Semester / CourseName / Category / TeacherName
   if (!courseName.includes('Job Preparation')) {
     if (folderPathSegments.length > 1) { // Path segment for Semester
       const semStr = folderPathSegments[1].toLowerCase();
@@ -78,12 +81,12 @@ function extractMetadataFromPath(
 
     if (folderPathSegments.length > 2) { // Path segment for Course Name
       courseName = folderPathSegments[2];
+      // Add course name words as tags
       courseName.toLowerCase().split(/\s+|[\W_]+/).filter(Boolean).forEach(tag => {
         if (!tags.includes(tag)) tags.push(tag);
       });
     }
 
-    // New structure: Year / Sem / Course / Category / Teacher
     if (folderPathSegments.length > 3) { // Path segment for Category
       category = folderPathSegments[3];
     }
@@ -186,6 +189,7 @@ export async function GET() {
     console.log("Processing fetched files...");
     for (const file of driveFiles) {
       if (!file.id || !file.name || !file.parents || file.parents.length === 0) {
+        console.log(`Skipping file due to missing id, name, or parents: ${file.name || 'Unnamed file'}`);
         continue;
       }
 
@@ -225,11 +229,14 @@ export async function GET() {
           id: file.id,
           name: file.name,
           type: getResourceType(file.mimeType),
-          url: file.webViewLink || file.webContentLink || '#',
+          viewUrl: file.webViewLink || '#', // Prioritize webViewLink for viewing
+          downloadUrl: `https://drive.google.com/uc?export=download&id=${file.id}`, // Specific download URL
           ...metadata,
           isNew: isActuallyNew,
           isPopular: false, // Popularity logic can be added later if needed
         });
+      } else {
+        // console.log(`File ${file.name} is NOT a descendant of ${GOOGLE_DRIVE_FOLDER_ID}. Its reconstructed path root parent was ${currentParentId}. Path segments found: [${pathSegments.join(' / ')}]`);
       }
     }
 

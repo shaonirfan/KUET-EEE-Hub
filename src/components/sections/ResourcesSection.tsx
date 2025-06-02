@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, Loader2, Info, BookUser, UserSquare, ArrowRight } from 'lucide-react';
+import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, Loader2, Info, BookUser, UserSquare, ArrowRight, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -23,7 +23,8 @@ export interface Resource {
   category: string;
   isNew: boolean;
   isPopular: boolean;
-  url: string;
+  viewUrl: string; // Changed from url
+  downloadUrl: string; // New field
   tags?: string[];
 }
 
@@ -50,8 +51,8 @@ export default function ResourcesSection() {
   const [selectedYear, setSelectedYear] = useState<string>('All Years');
   const [selectedSemester, setSelectedSemester] = useState<string>('All Semesters');
   const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
 
 
   const [uniqueCourseNames, setUniqueCourseNames] = useState<string[]>(['All Courses']);
@@ -72,21 +73,26 @@ export default function ResourcesSection() {
         const data: Resource[] = await response.json();
         setAllResources(data);
 
+        // Populate unique course names
         const fetchedCourseNames = ['All Courses', ...[...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort()];
         setUniqueCourseNames(fetchedCourseNames);
+        
+        // Populate unique teacher names, ensuring "All Teachers" is first and unique
+        let dynamicTeacherNames = [...new Set(data.map(r => r.teacherName).filter(Boolean as any) as string[])].sort();
+        if (dynamicTeacherNames.includes('All Teachers')) {
+            dynamicTeacherNames = dynamicTeacherNames.filter(tn => tn !== 'All Teachers');
+        }
+        setUniqueTeacherNames(['All Teachers', ...dynamicTeacherNames]);
 
-        const fetchedCategoriesFromData = [...new Set(data.map(r => r.category).filter(Boolean))].sort();
-        const combinedCategories = ['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories'), ...fetchedCategoriesFromData.filter(fc => fc !== 'All Categories' && !staticCategories.includes(fc))];
-        setUniqueCategories([...new Set(combinedCategories)].sort((a, b) => {
-            if (a === 'All Categories') return -1;
-            if (b === 'All Categories') return 1;
-            if (staticCategories.includes(a) && !staticCategories.includes(b)) return -1;
-            if (!staticCategories.includes(a) && staticCategories.includes(b)) return 1;
-            return a.localeCompare(b);
-        }));
 
-        const fetchedTeacherNames = ['All Teachers', ...[...new Set(data.map(r => r.teacherName).filter(Boolean as any))].sort()];
-        setUniqueTeacherNames(fetchedTeacherNames);
+        // Populate unique categories, ensuring staticCategories are handled correctly and "All Categories" is first and unique
+        let dynamicCategories = [...new Set(data.map(r => r.category).filter(Boolean as any) as string[])].sort();
+        const baseCategories = staticCategories.filter(sc => sc !== 'All Categories'); // Static without "All"
+        
+        dynamicCategories = dynamicCategories.filter(dc => dc !== 'All Categories' && !baseCategories.includes(dc)); // Dynamic that are not in static
+        
+        const combined = [...baseCategories, ...dynamicCategories].sort();
+        setUniqueCategories(['All Categories', ...combined]);
 
 
       } catch (err) {
@@ -115,8 +121,8 @@ export default function ResourcesSection() {
       (selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
       (selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
       (selectedCourseName !== 'All Courses' ? resource.courseName === selectedCourseName : true) &&
-      (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true) &&
-      (selectedTeacherName !== 'All Teachers' ? resource.teacherName === selectedTeacherName : true)
+      (selectedTeacherName !== 'All Teachers' ? resource.teacherName === selectedTeacherName : true) &&
+      (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
     );
   }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedCategory, selectedTeacherName, allResources, isLoading]);
 
@@ -125,8 +131,8 @@ export default function ResourcesSection() {
     setSelectedYear('All Years');
     setSelectedSemester('All Semesters');
     setSelectedCourseName('All Courses');
-    setSelectedCategory('All Categories');
     setSelectedTeacherName('All Teachers');
+    setSelectedCategory('All Categories');
   };
 
   const activeFiltersCount = useMemo(() => {
@@ -135,10 +141,10 @@ export default function ResourcesSection() {
     if (selectedYear !== 'All Years') count++;
     if (selectedSemester !== 'All Semesters') count++;
     if (selectedCourseName !== 'All Courses') count++;
-    if (selectedCategory !== 'All Categories') count++;
     if (selectedTeacherName !== 'All Teachers') count++;
+    if (selectedCategory !== 'All Categories') count++;
     return count;
-  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedCategory, selectedTeacherName]);
+  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory]);
 
 
   return (
@@ -148,7 +154,7 @@ export default function ResourcesSection() {
           Unlock Your Potential: Comprehensive EEE Resources
         </h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Find materials by year, semester, course, category, or teacher.
+          Find materials by year, semester, course, teacher, or category.
         </p>
       </div>
 
@@ -217,7 +223,7 @@ export default function ResourcesSection() {
                 </Select>
               </div>
               
-              <div>
+               <div>
                 <label htmlFor="filter-teacher" className="block text-sm font-medium text-muted-foreground mb-1.5">
                   <UserSquare size={16} className="inline mr-1.5 relative -top-px" />Teacher Name
                 </label>
@@ -275,8 +281,9 @@ export default function ResourcesSection() {
                   <Skeleton className="h-5 w-16 rounded-full" />
                 </div>
               </CardContent>
-              <CardFooter className="pt-0">
-                <Skeleton className="h-9 w-full" />
+              <CardFooter className="pt-0 flex gap-2">
+                <Skeleton className="h-9 flex-1" />
+                <Skeleton className="h-9 flex-1" />
               </CardFooter>
             </Card>
           ))}
@@ -333,11 +340,17 @@ export default function ResourcesSection() {
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="pt-0">
-                <Button asChild size="sm" className="w-full group">
-                  <Link href={resource.url} target="_blank" rel="noopener noreferrer">
-                    View / Download
+              <CardFooter className="pt-0 flex gap-2">
+                <Button asChild size="sm" className="flex-1 group">
+                  <Link href={resource.downloadUrl} target="_blank" rel="noopener noreferrer">
+                    Download
                     <Download className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" className="flex-1 group">
+                  <Link href={resource.viewUrl} target="_blank" rel="noopener noreferrer">
+                    View
+                    <Eye className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardFooter>
@@ -359,13 +372,12 @@ export default function ResourcesSection() {
           <Info className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
           <p className="text-2xl font-semibold text-muted-foreground">No resources found in Google Drive.</p>
           <p className="text-md text-muted-foreground mt-2">
-            Please ensure files are present in the configured Google Drive folder and subfolders,
-            and that the folder structure (e.g. Year/Semester/Course/Category/Teacher/file.ext) is followed.
-            Also, check sharing permissions and the `GOOGLE_DRIVE_FOLDER_ID` in the backend.
+             Ensure files are present in the configured Google Drive folder (`{GOOGLE_DRIVE_FOLDER_ID}`)
+             and follow the structure: Year/Semester/Course/Category/Teacher/file.ext.
+             Also, check sharing permissions.
           </p>
         </div>
       )}
     </section>
   );
 }
-
