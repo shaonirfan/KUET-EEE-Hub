@@ -85,10 +85,12 @@ export default function ContactSection() {
               <div className="pt-4 border-t border-border/40 mt-4">
                  <h4 className="font-medium text-foreground flex items-center"><Briefcase size={18} className="mr-2 text-primary" /> Contribution Guidance</h4>
                  <p className="text-sm text-muted-foreground mt-1">
-                   To contribute resources (notes, slides, job prep materials), please contact the site admin via Telegram or Facebook. You can share the materials directly or provide a Google Drive link.
+                   To contribute resources (notes, slides, job prep materials), please contact the site admin via Telegram. You can share the materials directly or provide a Google Drive link.
                  </p>
-                 <Button variant="outline" size="sm" className="mt-3 group">
-                   <MessageCircle size={16} className="mr-2" /> Message Admin for Contribution
+                 <Button asChild variant="outline" size="sm" className="mt-3 group">
+                  <Link href="https://t.me/shaonirfan" target="_blank" rel="noopener noreferrer">
+                    <MessageCircle size={16} className="mr-2" /> Message Admin for Contribution
+                  </Link>
                  </Button>
               </div>
             </CardContent>
