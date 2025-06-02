@@ -17,36 +17,8 @@ export default function ContactSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card">
-            <CardHeader>
-              <CardTitle className="flex items-center text-xl sm:text-2xl text-foreground">
-                <Info className="mr-3 h-6 w-6 sm:h-7 sm:w-7 text-primary shrink-0" />
-                Departmental Information
-              </CardTitle>
-              <CardDescription>For official academic inquiries and EEE department matters.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start space-x-3">
-                <Mail className="h-5 w-5 mt-1 text-primary shrink-0" />
-                <div>
-                  <h4 className="font-medium text-foreground">Official Email</h4>
-                  <a href="mailto:head_eee@kuet.ac.bd" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    head_eee@kuet.ac.bd
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <ExternalLink className="h-5 w-5 mt-1 text-primary shrink-0" />
-                <div>
-                  <h4 className="font-medium text-foreground">Department Website</h4>
-                  <Link href="https://www.kuet.ac.bd/department/EEE" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    www.kuet.ac.bd/department/EEE
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid md:grid-cols-1 gap-8 lg:gap-12 max-w-2xl mx-auto"> {/* Centered the remaining card */}
+          {/* Departmental Information Card Removed */}
 
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card">
             <CardHeader>
