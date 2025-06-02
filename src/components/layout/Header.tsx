@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet'; // Added SheetTitle
 import { Menu, Zap } from 'lucide-react'; // Using Zap as a placeholder logo icon
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -50,6 +50,7 @@ export default function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle> {/* Added visually hidden title */}
                 <nav className="grid gap-2 text-base font-medium mt-8">
                   <Link href="/" className="flex items-center space-x-2 mb-6 px-2" aria-label="KUET EEE Hub Home">
                     <Zap className="h-6 w-6 text-primary" />
