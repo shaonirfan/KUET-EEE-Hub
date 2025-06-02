@@ -76,12 +76,11 @@ export default function ResourcesSection() {
         setUniqueCourseNames(['All Courses', ...fetchedCourseNames.filter(cn => cn !== 'All Courses')]);
         
         const fetchedCategories = [...new Set(data.map(r => r.category).filter(Boolean))].sort();
-        // Ensure static categories are included and "All Categories" is first and unique
-        const combinedCategories = ['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories'), ...fetchedCategories.filter(fc => fc !== 'All Categories')];
+        const combinedCategories = ['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories'), ...fetchedCategories.filter(fc => fc !== 'All Categories' && !staticCategories.includes(fc))];
         setUniqueCategories([...new Set(combinedCategories)].sort((a, b) => {
-          if (a === 'All Categories') return -1;
-          if (b === 'All Categories') return 1;
-          return a.localeCompare(b);
+            if (a === 'All Categories') return -1;
+            if (b === 'All Categories') return 1;
+            return a.localeCompare(b);
         }));
         
         const fetchedTeacherNames = [...new Set(data.map(r => r.teacherName).filter(Boolean as any))].sort();
@@ -147,7 +146,7 @@ export default function ResourcesSection() {
           Unlock Your Potential: Comprehensive EEE Resources
         </h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Find materials by year, semester, course, category, or teacher. Organize your files in Google Drive like <code>Year/Semester/Course/Category/Teacher/file.ext</code> for automatic metadata.
+          Find materials by year, semester, course, category, or teacher.
         </p>
       </div>
 
