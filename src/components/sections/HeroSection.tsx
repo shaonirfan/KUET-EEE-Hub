@@ -22,7 +22,7 @@ export default function HeroSection() {
       
       <div className="container mx-auto px-4 text-center">
         <h1 className="font-display text-4xl tracking-normal text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-snug">
-          KUET EEE Hub: <span className="text-primary">All Your Essential Resources</span>, One Click Away.
+          <span className="text-primary">KUET EEE Hub:</span> All Your Essential Resources, One Click Away.
         </h1>
         <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl md:text-2xl max-w-3xl mx-auto">
           Your direct path to essential course materials, job preparation resources, and insights into our leading EEE program.
