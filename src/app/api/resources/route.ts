@@ -27,9 +27,8 @@ function getResourceType(mimeType?: string | null): Resource['type'] {
 
 function extractMetadataFromPath(
     fileName: string,
-    folderPathSegments: string[] // e.g., ["4th Year", "1st Sem", "EEE4101 VLSI Design", "Monir Sir", "Lecture Notes"]
+    folderPathSegments: string[] // e.g., ["4th Year", "1st Sem", "EEE4101 VLSI Design", "Lecture Notes", "Monir Sir"]
   ): Pick<ApiResource, 'year' | 'semester' | 'courseName' | 'teacherName' | 'category' | 'tags'> {
-  //This function is responsible for extracting metadata from file name and folder path segments
   let year = 'All Years';
   let semester = 'All Semesters';
   let courseName = 'General';
@@ -37,7 +36,7 @@ function extractMetadataFromPath(
   let category = 'Uncategorized';
   const tags: string[] = [];
 
-  // console.log(`Extracting metadata for: ${fileName} with path: ${folderPathSegments.join('/')}`);//Added log to show which file is being processed for metadata extraction
+  // console.log(`Extracting metadata for: ${fileName} with path: ${folderPathSegments.join('/')}`);
 
   if (folderPathSegments.length > 0) {
     const firstSegmentLower = folderPathSegments[0].toLowerCase();
@@ -51,58 +50,55 @@ function extractMetadataFromPath(
       courseName = 'Job Preparation';
       tags.push('job-preparation');
 
-      if (folderPathSegments.length > 1) {
-        const seg2Lower = folderPathSegments[1].toLowerCase();
-        const commonCategories = ['lecture notes', 'past paper', 'lab manual', 'book', 'notes', 'slide', 'presentation', 'question', 'guides'];
-        if (commonCategories.some(cat => seg2Lower.includes(cat))) {
-            category = folderPathSegments[1];
-            teacherName = 'All Teachers';
-        } else {
-            teacherName = folderPathSegments[1];
-            if(folderPathSegments.length > 2) {
-                category = folderPathSegments[2];
-            } else {
-                category = 'General';
-            }
-            if (teacherName !== 'All Teachers') tags.push(teacherName.toLowerCase().replace(/\s+/g, '-'));
-        }
+      // For Job Prep: Structure is Job Prep / Category / Teacher (Optional)
+      if (folderPathSegments.length > 1) { // Segment for Category
+        category = folderPathSegments[1];
       } else {
-         category = 'General';
+        category = 'General'; // Default category if only "Job Prep" folder exists
       }
-      if (category !== 'Uncategorized' && category !== 'General') tags.push(category.toLowerCase().replace(/\s+/g, '-'));
+      
+      if (folderPathSegments.length > 2) { // Segment for Teacher Name
+        teacherName = folderPathSegments[2];
+        if (teacherName && teacherName.toLowerCase() !== 'all teachers' && !tags.includes(teacherName.toLowerCase().replace(/\s+/g, '-'))) {
+          tags.push(teacherName.toLowerCase().replace(/\s+/g, '-'));
+        }
+      }
+      // teacherName defaults to 'All Teachers' if not found after category
     }
     if (year !== 'All Years' && !tags.includes(year.toLowerCase().replace(' ', '-'))) tags.push(year.toLowerCase().replace(' ', '-'));
   }
 
   if (!courseName.includes('Job Preparation')) {
-    if (folderPathSegments.length > 1) {
+    if (folderPathSegments.length > 1) { // Path segment for Semester
       const semStr = folderPathSegments[1].toLowerCase();
       if (semStr.includes('1st sem')) semester = '1st Sem';
       else if (semStr.includes('2nd sem')) semester = '2nd Sem';
       if (semester !== 'All Semesters' && !tags.includes(semester.toLowerCase().replace(' ', '-'))) tags.push(semester.toLowerCase().replace(' ', '-'));
     }
 
-    if (folderPathSegments.length > 2) {
+    if (folderPathSegments.length > 2) { // Path segment for Course Name
       courseName = folderPathSegments[2];
       courseName.toLowerCase().split(/\s+|[\W_]+/).filter(Boolean).forEach(tag => {
         if (!tags.includes(tag)) tags.push(tag);
       });
     }
 
-    if (folderPathSegments.length > 3) {
-        const segment3Lower = folderPathSegments[3].toLowerCase();
-        const commonCategoriesForDisambiguation = ['lecture notes', 'past paper', 'lab manual', 'book', 'notes', 'slide', 'presentation', 'question', 'guides', 'questions', 'manuals', 'slides', 'books'];
-
-        if (folderPathSegments.length > 4 && !commonCategoriesForDisambiguation.some(cat => segment3Lower.includes(cat))) {
-            teacherName = folderPathSegments[3];
-            category = folderPathSegments[4];
-            if (teacherName !== 'All Teachers' && !tags.includes(teacherName.toLowerCase().replace(/\s+/g, '-'))) tags.push(teacherName.toLowerCase().replace(/\s+/g, '-'));
-        } else {
-            category = folderPathSegments[3]; // Teacher name might be missing, this segment is category
-        }
+    // New structure: Year / Sem / Course / Category / Teacher
+    if (folderPathSegments.length > 3) { // Path segment for Category
+      category = folderPathSegments[3];
     }
+    // category defaults to 'Uncategorized' if not found
+
+    if (folderPathSegments.length > 4) { // Path segment for Teacher Name
+      teacherName = folderPathSegments[4];
+      if (teacherName && teacherName.toLowerCase() !== 'all teachers' && !tags.includes(teacherName.toLowerCase().replace(/\s+/g, '-'))) {
+          tags.push(teacherName.toLowerCase().replace(/\s+/g, '-'));
+      }
+    }
+    // teacherName defaults to 'All Teachers' if not found
   }
 
+  // Normalize common category names
   const catStrLower = category.toLowerCase();
   if (catStrLower.includes('lecture notes') || catStrLower.includes('notes') || catStrLower.includes('slide') || catStrLower.includes('presentation')) category = 'Lecture Notes';
   else if (catStrLower.includes('past paper') || catStrLower.includes('question')) category = 'Past Papers';
@@ -110,31 +106,32 @@ function extractMetadataFromPath(
   else if (catStrLower.includes('book')) category = 'Books';
 
 
-  if (category !== 'Uncategorized' && !tags.includes(category.toLowerCase().replace(/\s+/g, '-'))) {
+  if (category !== 'Uncategorized' && category !== 'General' && !tags.includes(category.toLowerCase().replace(/\s+/g, '-'))) {
       tags.push(category.toLowerCase().replace(/\s+/g, '-'));
   }
 
+  // Add tags from filename
   fileName.toLowerCase().split(/\s+|[\W_]+/).filter(Boolean).forEach(tag => {
     if (tag !== 'pdf' && tag !== 'docx' && tag !== 'pptx' && tag !== 'doc' && tag !== 'ppt' && !tags.includes(tag)) {
       tags.push(tag);
     }
   });
 
-  // console.log(` -> Year: ${year}, Sem: ${semester}, Course: ${courseName}, Teacher: ${teacherName}, Cat: ${category}, Tags: ${tags.join(', ')}`);//Added log to show the extracted metadata for each file
+  // console.log(` -> Year: ${year}, Sem: ${semester}, Course: ${courseName}, Cat: ${category}, Teacher: ${teacherName}, Tags: ${tags.join(', ')}`);
   return {
     year,
     semester,
     courseName,
     teacherName,
     category,
-    tags: [...new Set(tags)],
+    tags: [...new Set(tags)], // Ensure unique tags
   };
 }
 
 
 export async function GET() {
-  console.log("Attempting to fetch resources from Google Drive...");//Added log for start of fetching process
-  console.log("Using GOOGLE_DRIVE_FOLDER_ID:", GOOGLE_DRIVE_FOLDER_ID);//Added log to show the folder ID being used
+  console.log("Attempting to fetch resources from Google Drive...");
+  console.log("Using GOOGLE_DRIVE_FOLDER_ID:", GOOGLE_DRIVE_FOLDER_ID);
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_CLIENT_EMAIL || !GOOGLE_PRIVATE_KEY || GOOGLE_DRIVE_FOLDER_ID === "YOUR_GOOGLE_DRIVE_FOLDER_ID_HERE" || !GOOGLE_DRIVE_FOLDER_ID) {
     console.error("Google Drive API credentials or Root Folder ID are not correctly set. Ensure GOOGLE_DRIVE_FOLDER_ID is replaced with your actual root folder ID containing year-specific folders.");
@@ -154,27 +151,25 @@ export async function GET() {
     });
 
     const drive = google.drive({ version: 'v3', auth });
-    console.log("Google Drive API client initialized.");//Added log for successful API client initialization
+    console.log("Google Drive API client initialized.");
 
-    // 1. Get all folders to build a map for path reconstruction
-    console.log("Fetching all folders...");//Added log for start of folder fetching
+    console.log("Fetching all folders...");
     const folderRes = await drive.files.list({
       q: "mimeType='application/vnd.google-apps.folder' and trashed=false",
       fields: 'files(id, name, parents)',
       pageSize: 1000,
     });
     const allFolders = folderRes.data.files || [];
-    console.log(`Fetched ${allFolders.length} folders.`);//Added log to show number of folders fetched
+    console.log(`Fetched ${allFolders.length} folders.`);
     const folderMap = new Map<string, { name: string, parentId: string | null }>();
     allFolders.forEach(folder => {
       if (folder.id && folder.name) {
         folderMap.set(folder.id, { name: folder.name, parentId: folder.parents ? folder.parents[0] : null });
       }
     });
-    console.log(`Folder map created with ${folderMap.size} entries.`);//Added log to show size of folder map
+    console.log(`Folder map created with ${folderMap.size} entries.`);
 
-    // 2. Get all files (not folders)
-    console.log("Fetching all files (not folders)...");//Added log for start of file fetching
+    console.log("Fetching all files (not folders)...");
     const filesRes = await drive.files.list({
       q: `mimeType != 'application/vnd.google-apps.folder' and trashed=false`,
       fields: 'files(id, name, mimeType, webViewLink, webContentLink, createdTime, modifiedTime, parents)',
@@ -182,34 +177,32 @@ export async function GET() {
       orderBy: 'modifiedTime desc',
     });
     const driveFiles = filesRes.data.files || [];
-    console.log(`Fetched ${driveFiles.length} files in total from Drive.`);//Added log to show total number of files fetched
+    console.log(`Fetched ${driveFiles.length} files in total from Drive.`);
 
     const resources: ApiResource[] = [];
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    console.log("Processing fetched files...");//Added log for start of file processing
+    console.log("Processing fetched files...");
     for (const file of driveFiles) {
-      // console.log(`Processing file: ${file.name} (ID: ${file.id})`);//Kept commented to avoid excessive logging unless needed
       if (!file.id || !file.name || !file.parents || file.parents.length === 0) {
-        // console.log(`Skipping file ${file.name || file.id} due to missing essential info.`);//Kept commented to avoid excessive logging unless needed
         continue;
       }
 
       const pathSegments: string[] = [];
       let currentParentId: string | null = file.parents[0];
       let depth = 0;
-      // console.log(`  Processing file: ${file.name}, Initial parent ID: ${currentParentId}`); //Kept commented
+      // console.log(`  Processing file: ${file.name}, Initial parent ID: ${currentParentId}`);
 
-      while (currentParentId && currentParentId !== GOOGLE_DRIVE_FOLDER_ID && depth < 10) {
+      while (currentParentId && currentParentId !== GOOGLE_DRIVE_FOLDER_ID && depth < 10) { // depth limit to prevent infinite loops
         const folderDetail = folderMap.get(currentParentId);
         if (folderDetail) {
           pathSegments.unshift(folderDetail.name);
           currentParentId = folderDetail.parentId;
-          // console.log(`    Added segment: ${folderDetail.name}, new currentParentId: ${currentParentId}`);//Kept commented
+          // console.log(`    Added segment: ${folderDetail.name}, new currentParentId: ${currentParentId}`);
         } else {
-          // console.log(`    Parent ID ${currentParentId} not found in folderMap or path is too deep/outside scope.`);//Kept commented
-          currentParentId = null; // Stop if parent not in map (e.g., above our scope)
+          // console.log(`    Parent ID ${currentParentId} not found in folderMap. Stopping path reconstruction for this file.`);
+          currentParentId = null; // Stop if parent not in map (e.g., above our scope or broken link)
         }
         depth++;
       }
@@ -218,13 +211,13 @@ export async function GET() {
       if (currentParentId === GOOGLE_DRIVE_FOLDER_ID) {
          isDescendant = true;
       }
-
-      // console.log(`  File: ${file.name}, Final currentParentId: ${currentParentId}, Path: [${pathSegments.join(' / ')}], Is descendant: ${isDescendant}`); //Kept commented
+      
+      // console.log(`  File: ${file.name}, Final currentParentId after loop: ${currentParentId}, Path segments relative to root: [${pathSegments.join(' / ')}], Is descendant: ${isDescendant}`);
 
       if (isDescendant) {
-        // console.log(`  File ${file.name} is a descendant. Extracting metadata...`);//Kept commented
-        const metadata = extractMetadataFromPath(file.name, pathSegments); // Path segments are relative to GOOGLE_DRIVE_FOLDER_ID
-        // console.log(`  Metadata for ${file.name}:`, metadata); //Kept commented
+        // console.log(`  File ${file.name} is a descendant. Extracting metadata... Path: ${pathSegments.join('/')}`);
+        const metadata = extractMetadataFromPath(file.name, pathSegments);
+        // console.log(`  Metadata for ${file.name}:`, metadata);
         const modifiedDate = file.modifiedTime ? new Date(file.modifiedTime) : new Date(0);
         const isActuallyNew = modifiedDate > oneWeekAgo;
 
@@ -235,15 +228,15 @@ export async function GET() {
           url: file.webViewLink || file.webContentLink || '#',
           ...metadata,
           isNew: isActuallyNew,
-          isPopular: false,
+          isPopular: false, // Popularity logic can be added later if needed
         });
       }
     }
 
-    console.log(`Processed files. Found ${resources.length} resources matching criteria.`);//Added log to show number of resources found
+    console.log(`Processed files. Found ${resources.length} resources matching criteria.`);
 
     if (resources.length === 0 && driveFiles.length > 0) {
-        console.warn(`WARNING: No resources were processed as descendants of GOOGLE_DRIVE_FOLDER_ID ('${GOOGLE_DRIVE_FOLDER_ID}'). Total files fetched from Drive: ${driveFiles.length}. This might indicate that GOOGLE_DRIVE_FOLDER_ID is incorrect, the folder is empty, or files are not in the expected subfolder structure. Check sharing permissions and internal folder structure.`);//Modified warning
+        console.warn(`WARNING: No resources were processed as descendants of GOOGLE_DRIVE_FOLDER_ID ('${GOOGLE_DRIVE_FOLDER_ID}'). Total files fetched from Drive: ${driveFiles.length}. This might indicate that GOOGLE_DRIVE_FOLDER_ID is incorrect, the folder is empty, or files are not in the expected subfolder structure (e.g. Year/Sem/Course/Category/Teacher/file.ext). Check sharing permissions and internal folder structure.`);
         if (driveFiles.length > 0 && driveFiles[0]) {
           console.warn(`  Example: First file found in Drive: '${driveFiles[0].name}', its parent IDs: ${JSON.stringify(driveFiles[0].parents)}. Is this file expected to be under GOOGLE_DRIVE_FOLDER_ID?`);
         }

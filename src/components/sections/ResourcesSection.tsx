@@ -19,7 +19,7 @@ export interface Resource {
   year: string;
   semester: string;
   courseName?: string;
-  teacherName?: string; // New field for teacher name
+  teacherName?: string;
   category: string;
   isNew: boolean;
   isPopular: boolean;
@@ -29,14 +29,13 @@ export interface Resource {
 
 const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
 const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
-// Categories and Courses will be derived dynamically
-const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Presentations', 'Job Preparation', 'Uncategorized'];
+const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Job Preparation', 'Uncategorized'];
 
 
 const getFileIcon = (type: Resource['type']) => {
   switch (type) {
     case 'PDF': return <FileText className="h-5 w-5 text-primary" />;
-    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />;
+    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />; // Consider a more specific DOCX icon if available
     case 'PPT': return <Presentation className="h-5 w-5 text-primary" />;
     default: return <FileText className="h-5 w-5 text-primary" />;
   }
@@ -51,11 +50,12 @@ export default function ResourcesSection() {
   const [selectedYear, setSelectedYear] = useState<string>('All Years');
   const [selectedSemester, setSelectedSemester] = useState<string>('All Semesters');
   const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
-  const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
 
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>(staticCategories);
+
   const [uniqueCourseNames, setUniqueCourseNames] = useState<string[]>(['All Courses']);
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>(staticCategories);
   const [uniqueTeacherNames, setUniqueTeacherNames] = useState<string[]>(['All Teachers']);
 
 
@@ -72,14 +72,15 @@ export default function ResourcesSection() {
         const data: Resource[] = await response.json();
         setAllResources(data);
 
-        const fetchedCategories = new Set<string>(data.map(r => r.category).filter(Boolean));
-        setUniqueCategories(['All Categories', ...Array.from(fetchedCategories).sort()]);
+        const fetchedCourseNames = [...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort();
+        setUniqueCourseNames(['All Courses', ...fetchedCourseNames]);
+        
+        const fetchedCategories = [...new Set(data.map(r => r.category).filter(Boolean))].sort();
+        setUniqueCategories(['All Categories', ...staticCategories.filter(sc => sc !== 'All Categories' && !fetchedCategories.includes(sc)), ...fetchedCategories]);
+        
+        const fetchedTeacherNames = [...new Set(data.map(r => r.teacherName).filter(Boolean as any))].sort();
+        setUniqueTeacherNames(['All Teachers', ...fetchedTeacherNames]);
 
-        const fetchedCourseNames = new Set<string>(data.map(r => r.courseName).filter(Boolean as any));
-        setUniqueCourseNames(['All Courses', ...Array.from(fetchedCourseNames).sort()]);
-
-        const fetchedTeacherNames = new Set<string>(data.map(r => r.teacherName).filter(Boolean as any));
-        setUniqueTeacherNames(['All Teachers', ...Array.from(fetchedTeacherNames).sort()]);
 
       } catch (err) {
         if (err instanceof Error) {
@@ -87,7 +88,7 @@ export default function ResourcesSection() {
         } else {
           setError('An unknown error occurred');
         }
-        setAllResources([]);
+        setAllResources([]); // Clear resources on error
       } finally {
         setIsLoading(false);
       }
@@ -96,9 +97,9 @@ export default function ResourcesSection() {
   }, []);
 
   const filteredResources = useMemo(() => {
-    if (isLoading) return [];
+    if (isLoading) return []; // Don't filter if still loading initial data
     return allResources.filter(resource =>
-      (
+      ( // Search term logic
         resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (resource.courseName && resource.courseName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (resource.teacherName && resource.teacherName.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -107,18 +108,18 @@ export default function ResourcesSection() {
       (selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
       (selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
       (selectedCourseName !== 'All Courses' ? resource.courseName === selectedCourseName : true) &&
-      (selectedTeacherName !== 'All Teachers' ? resource.teacherName === selectedTeacherName : true) &&
-      (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
+      (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true) &&
+      (selectedTeacherName !== 'All Teachers' ? resource.teacherName === selectedTeacherName : true)
     );
-  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory, allResources, isLoading]);
+  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedCategory, selectedTeacherName, allResources, isLoading]);
 
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedYear('All Years');
     setSelectedSemester('All Semesters');
     setSelectedCourseName('All Courses');
-    setSelectedTeacherName('All Teachers');
     setSelectedCategory('All Categories');
+    setSelectedTeacherName('All Teachers');
   };
 
   const activeFiltersCount = useMemo(() => {
@@ -127,10 +128,10 @@ export default function ResourcesSection() {
     if (selectedYear !== 'All Years') count++;
     if (selectedSemester !== 'All Semesters') count++;
     if (selectedCourseName !== 'All Courses') count++;
-    if (selectedTeacherName !== 'All Teachers') count++;
     if (selectedCategory !== 'All Categories') count++;
+    if (selectedTeacherName !== 'All Teachers') count++;
     return count;
-  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory]);
+  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedCategory, selectedTeacherName]);
 
 
   return (
@@ -140,7 +141,7 @@ export default function ResourcesSection() {
           Unlock Your Potential: Comprehensive EEE Resources
         </h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Find materials by year, semester, course, teacher, or category. Organize your files in Google Drive like <code>Year/Semester/Course/Teacher/Category/file.ext</code> for automatic metadata.
+          Find materials by year, semester, course, category, or teacher. Organize your files in Google Drive like <code>Year/Semester/Course/Category/Teacher/file.ext</code> for automatic metadata.
         </p>
       </div>
 
@@ -166,33 +167,33 @@ export default function ResourcesSection() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
-              <Tabs defaultValue="All Years" value={selectedYear} onValueChange={setSelectedYear}>
-                <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5">
-                  {years.map(year => (
-                    <TabsTrigger key={year} value={year} disabled={isLoading}>
-                      {year === 'All Years' ? 'All' : year.replace(' Year', '')}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
+                <Tabs defaultValue="All Years" value={selectedYear} onValueChange={setSelectedYear}>
+                  <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5">
+                    {years.map(year => (
+                      <TabsTrigger key={year} value={year} disabled={isLoading}>
+                        {year === 'All Years' ? 'All' : year.replace(' Year', '')}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Semester</label>
-              <Tabs defaultValue="All Semesters" value={selectedSemester} onValueChange={setSelectedSemester}>
-                <TabsList className="grid w-full grid-cols-3">
-                  {semesters.map(sem => (
-                    <TabsTrigger key={sem} value={sem} disabled={isLoading}>
-                      {sem === 'All Semesters' ? 'All' : sem.replace(' Sem', '')}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Semester</label>
+                <Tabs defaultValue="All Semesters" value={selectedSemester} onValueChange={setSelectedSemester}>
+                  <TabsList className="grid w-full grid-cols-3">
+                    {semesters.map(sem => (
+                      <TabsTrigger key={sem} value={sem} disabled={isLoading}>
+                        {sem === 'All Semesters' ? 'All' : sem.replace(' Sem', '')}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="filter-course" className="block text-sm font-medium text-muted-foreground mb-1.5">
                   <BookUser size={16} className="inline mr-1.5 relative -top-px" />Course Name
@@ -208,7 +209,21 @@ export default function ResourcesSection() {
                   </SelectContent>
                 </Select>
               </div>
+              
               <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
+                <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
+                    {uniqueCategories.map(cat => (
+                      <TabsTrigger key={cat} value={cat} className="flex-grow text-xs sm:text-sm" disabled={isLoading}>
+                        {cat === 'All Categories' ? 'All' : cat}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </Tabs>
+              </div>
+              
+              <div className="md:col-span-2"> {/* Teacher Name filter can span full width if it's the last in a row or on its own row */}
                 <label htmlFor="filter-teacher" className="block text-sm font-medium text-muted-foreground mb-1.5">
                   <UserSquare size={16} className="inline mr-1.5 relative -top-px" />Teacher Name
                 </label>
@@ -225,18 +240,6 @@ export default function ResourcesSection() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
-              <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
-                  {uniqueCategories.map(cat => (
-                    <TabsTrigger key={cat} value={cat} className="flex-grow text-xs sm:text-sm" disabled={isLoading}>
-                      {cat === 'All Categories' ? 'All' : cat}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            </div>
 
             <div className="flex justify-end items-center mt-2">
               {activeFiltersCount > 0 && (
@@ -288,7 +291,7 @@ export default function ResourcesSection() {
                 <ul className="text-sm text-muted-foreground mt-3 list-disc list-inside">
                     <li>Ensure the `GOOGLE_DRIVE_FOLDER_ID` in the backend code (`src/app/api/resources/route.ts`) is correctly set.</li>
                     <li>Make sure your Google Drive folder is shared with the service account email with "Viewer" permissions.</li>
-                    <li>Verify your folder structure (e.g. Year/Semester/Course/Teacher/Category/file.ext).</li>
+                    <li>Verify your folder structure (e.g. Year/Semester/Course/Category/Teacher/file.ext).</li>
                 </ul>
                 <Button onClick={() => window.location.reload()} className="mt-4" variant="secondary">Try Again</Button>
             </CardContent>
@@ -308,10 +311,10 @@ export default function ResourcesSection() {
                   </div>
                 </div>
                 <CardTitle className="text-lg leading-tight line-clamp-2" title={resource.name}>{resource.name}</CardTitle>
-                <CardDescription className="text-xs truncate" title={`${resource.courseName ? resource.courseName : ''}${resource.teacherName && resource.teacherName !== 'All Teachers' ? ' • ' + resource.teacherName : ''} • ${resource.category}`}>
+                 <CardDescription className="text-xs truncate" title={`${resource.courseName ? resource.courseName : ''}${resource.category ? ' • ' + resource.category : ''}${resource.teacherName && resource.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + resource.teacherName : ''}`}>
                     {resource.courseName ? resource.courseName : ''}
-                    {resource.teacherName && resource.teacherName !== 'All Teachers' ? <><span className="mx-1">&bull;</span>{resource.teacherName}</> : ''}
-                    <span className="mx-1">&bull;</span>{resource.category}
+                    {resource.category ? <><span className="mx-1">&bull;</span>{resource.category}</> : ''}
+                    {resource.teacherName && resource.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{resource.teacherName}</> : ''}
                 </CardDescription>
                 <CardDescription className="text-xs">{resource.year} &bull; {resource.semester}</CardDescription>
               </CardHeader>
@@ -350,7 +353,7 @@ export default function ResourcesSection() {
           <p className="text-2xl font-semibold text-muted-foreground">No resources found in Google Drive.</p>
           <p className="text-md text-muted-foreground mt-2">
             Please ensure files are present in the configured Google Drive folder and subfolders,
-            and that the folder structure (e.g. Year/Semester/Course/Teacher/Category/file.ext) is followed.
+            and that the folder structure (e.g. Year/Semester/Course/Category/Teacher/file.ext) is followed.
             Also, check sharing permissions and the `GOOGLE_DRIVE_FOLDER_ID` in the backend.
           </p>
         </div>
