@@ -36,7 +36,7 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
+          disableTransitionOnChange={false} // Changed from true (implicit) to false
         >
           {children}
           <Toaster />
