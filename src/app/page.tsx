@@ -1,4 +1,5 @@
 
+'use client'; // Required because NavBar uses hooks like useState, useEffect
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/sections/HeroSection';
@@ -6,12 +7,22 @@ import HeroSection from '@/components/sections/HeroSection';
 import ResourcesSection from '@/components/sections/ResourcesSection';
 import ContactSection from '@/components/sections/ContactSection';
 import { Separator } from '@/components/ui/separator';
+import ChatbotWidget from '@/components/chatbot/ChatbotWidget';
+import { NavBar } from "@/components/ui/tubelight-navbar"; // Import NavBar
+import { Home, FileText, Mail } from 'lucide-react'; // Import icons
+
+const navBarItems = [
+  { name: 'Home', url: '#hero', icon: Home },
+  { name: 'Resources', url: '#resources', icon: FileText },
+  { name: 'Contact', url: '#contact', icon: Mail },
+];
 
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-grow">
+      <NavBar items={navBarItems} /> {/* Add NavBar here */}
+      <main className="flex-grow pt-16"> {/* Add pt-16 to main to account for NavBar potentially at top */}
         <HeroSection />
         {/* <AboutSection /> // Removed */}
         {/* Removed separator that was after AboutSection 
@@ -25,6 +36,7 @@ export default function HomePage() {
         </div>
         <ContactSection />
       </main>
+      <ChatbotWidget />
       <Footer />
     </div>
   );
