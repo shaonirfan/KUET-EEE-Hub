@@ -13,7 +13,7 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="mr-6 flex items-center space-x-2" aria-label="KUET EEE Hub Home">
           <Zap className="h-6 w-6 text-primary" />
-          <span className="font-bold text-lg text-foreground">KUET EEE Hub</span>
+          <span className="font-bold font-serif text-lg text-foreground">KUET EEE Hub</span>
         </Link>
         
         {/* Navigation is now handled by NavBar component in page.tsx */}
