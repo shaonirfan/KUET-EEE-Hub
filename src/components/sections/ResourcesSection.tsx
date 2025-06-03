@@ -32,7 +32,7 @@ export interface Resource {
 
 const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
 const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
-const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Uncategorized'];
+const staticCategories = ['All Categories', 'Lecture Notes', 'Question Bank', 'Books', 'Uncategorized'];
 
 
 const getFileIcon = (type: Resource['type']) => {
@@ -388,3 +388,5 @@ export default function ResourcesSection() {
     </section>
   );
 }
+
+    

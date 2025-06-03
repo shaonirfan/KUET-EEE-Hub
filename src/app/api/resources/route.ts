@@ -104,8 +104,7 @@ function extractMetadataFromPath(
   // Normalize common category names
   const catStrLower = category.toLowerCase();
   if (catStrLower.includes('lecture notes') || catStrLower.includes('notes') || catStrLower.includes('slide') || catStrLower.includes('presentation')) category = 'Lecture Notes';
-  else if (catStrLower.includes('past paper') || catStrLower.includes('question')) category = 'Past Papers';
-  else if (catStrLower.includes('lab manual') || catStrLower.includes('manual')) category = 'Lab Manuals';
+  else if (catStrLower.includes('past paper') || catStrLower.includes('question') || catStrLower.includes('question bank') || catStrLower.includes('lab manual') || catStrLower.includes('manual')) category = 'Question Bank';
   else if (catStrLower.includes('book')) category = 'Books';
 
 
@@ -273,3 +272,5 @@ export async function GET() {
     );
   }
 }
+
+    
