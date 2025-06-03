@@ -5,35 +5,35 @@
 
 @layer base {
   :root {
-    --background: 200 78% 96%; /* #CAF0F8 Pale Cyan Blue */
-    --foreground: 237 91% 19%; /* #03045E Very Dark (Almost Navy) Blue */
+    --background: 200 78% 96%; /* #CAF0F8 Pale Cyan Blue from mockup light mode body */
+    --foreground: 237 91% 19%; /* #03045E Very Dark (Almost Navy) Blue from mockup light mode text */
 
-    --card: 0 0% 100%; /* White */
+    --card: 0 0% 100%; /* White from mockup light mode card background */
     --card-foreground: 237 91% 19%; /* #03045E */
 
     --popover: 0 0% 100%;
     --popover-foreground: 237 91% 19%;
 
-    --primary: 190 100% 42%; /* #00B4D8 Bright Cyan Blue */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 190 100% 42%; /* #00B4D8 Bright Cyan Blue from mockup primary buttons/accents */
+    --primary-foreground: 0 0% 100%; /* White for text on primary */
 
-    --secondary: 206 96% 28%; /* #023E8A Dark Blue */
+    --secondary: 206 96% 28%; /* #023E8A Dark Blue from mockup secondary elements or text */
     --secondary-foreground: 0 0% 100%; /* White */
 
-    --muted: 200 65% 93%; /* #ADE8F4 Light Cyan / Tint of #CAF0F8 */
-    --muted-foreground: 206 70% 40%; /* #023E8A at a lower saturation for text */
+    --muted: 200 65% 93%; /* #ADE8F4 Light Cyan / Tint of #CAF0F8, or for hover states */
+    --muted-foreground: 206 70% 40%; /* #023E8A at a lower saturation for text on muted backgrounds */
 
-    --accent: 198 78% 60%; /* #48CAE4 Sky Blue */
+    --accent: 198 78% 60%; /* #48CAE4 Sky Blue from mockup accent elements/hovers */
     --accent-foreground: 237 91% 19%; /* #03045E */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 200 50% 90%; /* #90E0EF Lightest Cyan Blue */
+    --border: 200 50% 90%; /* #90E0EF Lightest Cyan Blue from mockup borders */
     --input: 200 50% 90%; /* #90E0EF */
     --ring: 190 100% 42%; /* #00B4D8 */
 
-    --radius: 0.75rem; /* Mockup uses more rounded elements, e.g., rounded-2xl */
+    --radius: 0.75rem; /* Mockup uses more rounded elements, e.g., rounded-2xl or rounded-full */
 
     /* Chart colors - can be adjusted if charts are used, for now keep defaults or map to theme */
     --chart-1: 12 76% 61%;
@@ -44,32 +44,32 @@
   }
 
   .dark {
-    --background: 224 71% 4%; /* #0A0F2C */
-    --foreground: 200 78% 96%; /* #CAF0F8 */
+    --background: 222 68% 10%; /* #0A0F2C from mockup dark mode body */
+    --foreground: 200 78% 96%; /* #CAF0F8 from mockup dark mode text */
 
-    --card: 216 82% 11%; /* #023E8A */
+    --card: 206 96% 28%; /* #023E8A from mockup dark mode card background */
     --card-foreground: 200 78% 96%; /* #CAF0F8 */
 
-    --popover: 224 71% 4%; /* #0A0F2C */
+    --popover: 222 68% 10%; /* #0A0F2C */
     --popover-foreground: 200 78% 96%; /* #CAF0F8 */
 
     --primary: 190 100% 42%; /* #00B4D8 */
     --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 200 67% 89%; /* #ADE8F4 */
+    --secondary: 200 67% 89%; /* #ADE8F4 Light cyan for dark theme secondary elements */
     --secondary-foreground: 237 91% 19%; /* #03045E for contrast on light secondary */
     
-    --muted: 222 47% 11%; /* #111827 */
-    --muted-foreground: 200 48% 78%; /* #90E0EF */
+    --muted: 215 39% 17%; /* #1F2937 from mockup dark resource section BG, or general muted */
+    --muted-foreground: 200 48% 78%; /* #90E0EF from mockup dark mode muted text */
 
     --accent: 198 78% 60%; /* #48CAE4 */
-    --accent-foreground: 224 71% 4%; /* #0A0F2C */
+    --accent-foreground: 222 68% 10%; /* #0A0F2C */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 206 95% 16%; /* #023E8A (Darker variant of it for borders) */
-    --input: 222 47% 11%; /* #111827 */
+    --border: 206 96% 28%; /* #023E8A from mockup dark mode borders or footer border */
+    --input: 215 39% 17%; /* #1F2937 (or #111827 from search input) */
     --ring: 190 100% 42%; /* #00B4D8 */
     
     /* Chart colors - dark theme adjustments */
@@ -93,6 +93,7 @@
     @apply bg-background text-foreground; 
     font-feature-settings: "rlig" 1, "calt" 1;
     @apply overflow-x-hidden; /* From user's HTML mockup */
+    @apply transition-colors duration-300; /* From user's HTML mockup body */
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold text-foreground; 
@@ -106,11 +107,12 @@
   }
 
   section {
-    @apply py-14 md:py-20; /* Adjusted padding from mockup */
+    @apply py-14 md:py-20; /* Adjusted padding from mockup, default is py-20 */
   }
 }
 
-/* Styling for the WebGL Canvas Background */
+/* Styling for the WebGL Canvas Background - REMOVED */
+/*
 canvas#neuro {
   position: fixed;
   top: 0;
@@ -118,9 +120,10 @@ canvas#neuro {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: .95; /* From user's HTML mockup */
-  z-index: -1; /* Ensure it's behind other content */
+  opacity: .95; 
+  z-index: -1; 
 }
+*/
 
 /* Remove sidebar specific styles as they are not used in this one-page layout */
 :root {

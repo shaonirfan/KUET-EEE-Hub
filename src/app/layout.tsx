@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from "@/components/ui/toaster";
-import NeuralNoiseBackground from '@/components/NeuralNoiseBackground'; // Import the new component
+// Removed NeuralNoiseBackground import
 
 const inter = Inter({
   subsets: ['latin'],
@@ -28,7 +28,7 @@ export default function RootLayout({
         {/* Removed Bree Serif as Inter is primary and mockup also uses Inter predominantly */}
       </head>
       <body className={`${inter.className} antialiased`}>
-        <NeuralNoiseBackground /> {/* Add the background component here */}
+        {/* Removed NeuralNoiseBackground component usage */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system" // Users can still choose light/dark explicitly
