@@ -18,8 +18,8 @@ export default {
     },
   	extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'sans-serif'], // Use Inter as primary sans-serif
-        // display: ['Bree Serif', 'serif'], // Removed to rely on Inter consistently
+        sans: ['var(--font-inter)', 'sans-serif'],
+        serif: ['var(--font-ibm-plex-serif)', 'serif'],
       },
   		colors: {
   			background: 'hsl(var(--background))',
@@ -62,7 +62,7 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			},
-  			sidebar: { // These are kept for shadcn ui defaults, but not actively used in this layout
+  			sidebar: { 
   				DEFAULT: 'hsl(var(--sidebar-background))',
   				foreground: 'hsl(var(--sidebar-foreground))',
   				primary: 'hsl(var(--sidebar-primary))',

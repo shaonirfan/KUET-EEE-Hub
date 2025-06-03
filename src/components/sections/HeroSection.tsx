@@ -22,7 +22,7 @@ export default function HeroSection() {
       </div>
       
       <div className="container mx-auto px-4 text-center">
-        <h1 className="text-4xl tracking-normal text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-snug [text-shadow:0_1px_3px_rgba(0,0,0,0.1)] dark:[text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
+        <h1 className="font-serif text-4xl tracking-normal text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-snug [text-shadow:0_1px_3px_rgba(0,0,0,0.1)] dark:[text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
           <span className="text-primary">KUET EEE Hub:</span> All Your Essential Resources - One Click Away.
         </h1>
         <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl md:text-2xl max-w-3xl mx-auto">

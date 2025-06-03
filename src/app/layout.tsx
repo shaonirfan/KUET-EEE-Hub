@@ -1,15 +1,20 @@
 
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, IBM_Plex_Serif } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from "@/components/ui/toaster";
-// Removed NeuralNoiseBackground import
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-inter', 
-  weight: ['400', '500', '600', '700'], 
+  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+});
+
+const ibmPlexSerif = IBM_Plex_Serif({
+  subsets: ['latin'],
+  variable: '--font-ibm-plex-serif',
+  weight: ['400', '700'], // Include bold weight
 });
 
 export const metadata: Metadata = {
@@ -25,13 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Removed Bree Serif as Inter is primary and mockup also uses Inter predominantly */}
       </head>
-      <body className={`${inter.className} antialiased`}>
-        {/* Removed NeuralNoiseBackground component usage */}
+      <body className={`${inter.variable} ${ibmPlexSerif.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system" // Users can still choose light/dark explicitly
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
