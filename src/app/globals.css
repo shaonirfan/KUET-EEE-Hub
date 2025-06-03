@@ -5,8 +5,8 @@
 
 @layer base {
   :root {
-    --background: 96 67% 96%; /* #f1faee */
-    --foreground: 217 54% 23%; /* #1d3557 */
+    --background: 96 67% 96%; /* #f1faee - Off-white */
+    --foreground: 217 54% 23%; /* #1d3557 - Dark Navy */
 
     --card: 0 0% 100%; /* White */
     --card-foreground: 217 54% 23%; /* #1d3557 */
@@ -14,19 +14,19 @@
     --popover: 0 0% 100%; /* White */
     --popover-foreground: 217 54% 23%; /* #1d3557 */
 
-    --primary: 207 39% 44%; /* #457b9d */
+    --primary: 207 39% 44%; /* #457b9d - Muted Blue */
     --primary-foreground: 96 67% 96%; /* #f1faee */
 
-    --secondary: 182 38% 76%; /* #a8dadc */
+    --secondary: 182 38% 76%; /* #a8dadc - Light Cyan/Blue */
     --secondary-foreground: 217 54% 23%; /* #1d3557 */
 
     --muted: 210 25% 94%; /* Adjusted: very light grey-blue */
     --muted-foreground: 207 39% 44%; /* #457b9d - text on muted */
 
-    --accent: 182 38% 76%; /* #a8dadc */
+    --accent: 182 38% 76%; /* #a8dadc - Light Cyan/Blue (same as secondary) */
     --accent-foreground: 217 54% 23%; /* #1d3557 */
 
-    --destructive: 355 78% 56%; /* #e63946 */
+    --destructive: 355 78% 56%; /* #e63946 - Reddish */
     --destructive-foreground: 96 67% 96%; /* #f1faee */
 
     --border: 210 20% 88%; /* Adjusted: light grey-blue */
@@ -44,33 +44,33 @@
   }
 
   .dark {
-    --background: 217 54% 23%; /* #1d3557 */
-    --foreground: 96 67% 96%; /* #f1faee */
+    --background: 220 20% 12%; /* NEW: #1A1D24 - Darker, less saturated blue-grey */
+    --foreground: 96 67% 96%; /* #f1faee - Kept for high contrast */
 
-    --card: 210 15% 18%; /* Adjusted: Neutral dark grey-blue */
+    --card: 220 18% 16%; /* NEW: #21252E - Slightly lighter than new background */
     --card-foreground: 96 67% 96%; /* #f1faee */
 
-    --popover: 217 54% 18%; /* Darker version of background */
+    --popover: 220 18% 14%; /* NEW: #1D2028 - Slightly darker than new card */
     --popover-foreground: 96 67% 96%; /* #f1faee */
 
-    --primary: 207 39% 55%; /* Lighter #457b9d */
-    --primary-foreground: 217 54% 15%; /* Darker #1d3557 */
+    --primary: 207 39% 55%; /* Lighter #457b9d - Kept */
+    --primary-foreground: 217 54% 15%; /* Darker #1d3557 - Kept */
 
-    --secondary: 182 38% 65%; /* Darker #a8dadc */
-    --secondary-foreground: 217 54% 23%; /* #1d3557 */
+    --secondary: 182 38% 65%; /* Darker #a8dadc - Kept */
+    --secondary-foreground: 217 54% 23%; /* #1d3557 - Kept */
     
-    --muted: 210 15% 22%; /* Adjusted: darker grey-blue */
-    --muted-foreground: 182 38% 70%; /* Adjusted: Lighter accent for text on muted */
+    --muted: 220 15% 20%; /* NEW: #292D36 - Adjusted for new background */
+    --muted-foreground: 182 38% 70%; /* Adjusted: Lighter accent for text on muted - Kept */
 
-    --accent: 182 38% 60%; /* Darker #a8dadc */
-    --accent-foreground: 217 54% 15%; /* Darker #1d3557 */
+    --accent: 182 38% 60%; /* Darker #a8dadc - Kept */
+    --accent-foreground: 217 54% 15%; /* Darker #1d3557 - Kept */
 
-    --destructive: 355 78% 60%; /* Lighter #e63946 */
-    --destructive-foreground: 96 67% 96%; /* #f1faee */
+    --destructive: 355 78% 60%; /* Lighter #e63946 - Kept */
+    --destructive-foreground: 96 67% 96%; /* #f1faee - Kept */
 
-    --border: 210 12% 28%; /* Adjusted: dark grey-blue */
-    --input: 210 15% 22%; /* Adjusted: darker grey-blue (same as muted) */
-    --ring: 207 39% 55%; /* Primary color for dark mode */
+    --border: 220 15% 24%; /* NEW: #303540 - Adjusted for new background */
+    --input: 220 15% 20%; /* NEW: #292D36 - Same as new muted */
+    --ring: 207 39% 55%; /* Primary color for dark mode - Kept */
     
     /* Chart colors - dark theme adjustments */
     --chart-1: 220 70% 50%;
@@ -132,3 +132,4 @@
   --sidebar-border: transparent;
   --sidebar-ring: transparent;
 }
+
