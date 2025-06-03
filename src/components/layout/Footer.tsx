@@ -34,7 +34,7 @@ export default function Footer() {
             <h3 className="text-base font-semibold mb-3 text-foreground">Official Pages</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="https://www.kuet.ac.bd/department/EEE" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center" target="_blank" rel="noopener noreferrer">
+                <Link href="https://www.kuet.ac.bd/dept/eee" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center" target="_blank" rel="noopener noreferrer">
                   EEE Department <ExternalLink size={14} className="ml-1" />
                 </Link>
               </li>
