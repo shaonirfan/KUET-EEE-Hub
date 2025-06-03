@@ -61,7 +61,7 @@ export default function ContactSection() {
                  </p>
                  <Button asChild variant="outline" size="sm" className="mt-3 group">
                   <Link href="https://t.me/shaonirfan" target="_blank" rel="noopener noreferrer">
-                    <MessageCircle size={16} className="mr-2" /> Message Admin for Contribution
+                    <MessageCircle size={16} className="mr-2" /> Message Admin
                   </Link>
                  </Button>
               </div>
