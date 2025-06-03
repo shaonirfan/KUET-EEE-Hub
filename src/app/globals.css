@@ -5,37 +5,37 @@
 
 @layer base {
   :root {
-    --background: 200 78% 96%; /* #CAF0F8 Pale Cyan Blue from mockup light mode body */
-    --foreground: 237 91% 19%; /* #03045E Very Dark (Almost Navy) Blue from mockup light mode text */
+    --background: 96 67% 96%; /* #f1faee */
+    --foreground: 217 54% 23%; /* #1d3557 */
 
-    --card: 0 0% 100%; /* White from mockup light mode card background */
-    --card-foreground: 237 91% 19%; /* #03045E */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 217 54% 23%; /* #1d3557 */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 237 91% 19%;
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 217 54% 23%; /* #1d3557 */
 
-    --primary: 190 100% 42%; /* #00B4D8 Bright Cyan Blue from mockup primary buttons/accents */
-    --primary-foreground: 0 0% 100%; /* White for text on primary */
+    --primary: 207 39% 44%; /* #457b9d */
+    --primary-foreground: 96 67% 96%; /* #f1faee */
 
-    --secondary: 206 96% 28%; /* #023E8A Dark Blue from mockup secondary elements or text */
-    --secondary-foreground: 0 0% 100%; /* White */
+    --secondary: 182 38% 76%; /* #a8dadc */
+    --secondary-foreground: 217 54% 23%; /* #1d3557 */
 
-    --muted: 200 65% 93%; /* #ADE8F4 Light Cyan / Tint of #CAF0F8, or for hover states */
-    --muted-foreground: 206 70% 40%; /* #023E8A at a lower saturation for text on muted backgrounds */
+    --muted: 182 38% 90%; /* Lighter #a8dadc */
+    --muted-foreground: 207 39% 44%; /* #457b9d */
 
-    --accent: 198 78% 60%; /* #48CAE4 Sky Blue from mockup accent elements/hovers */
-    --accent-foreground: 237 91% 19%; /* #03045E */
+    --accent: 182 38% 76%; /* #a8dadc */
+    --accent-foreground: 217 54% 23%; /* #1d3557 */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 355 78% 56%; /* #e63946 */
+    --destructive-foreground: 96 67% 96%; /* #f1faee */
 
-    --border: 200 50% 90%; /* #90E0EF Lightest Cyan Blue from mockup borders */
-    --input: 200 50% 90%; /* #90E0EF */
-    --ring: 190 100% 42%; /* #00B4D8 */
+    --border: 182 38% 70%; /* Darker #a8dadc */
+    --input: 182 38% 70%; /* Darker #a8dadc */
+    --ring: 207 39% 44%; /* #457b9d */
 
-    --radius: 0.75rem; /* Mockup uses more rounded elements, e.g., rounded-2xl or rounded-full */
+    --radius: 0.75rem;
 
-    /* Chart colors - can be adjusted if charts are used, for now keep defaults or map to theme */
+    /* Chart colors - kept original for now */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -44,33 +44,33 @@
   }
 
   .dark {
-    --background: 222 68% 10%; /* #0A0F2C from mockup dark mode body */
-    --foreground: 200 78% 96%; /* #CAF0F8 from mockup dark mode text */
+    --background: 217 54% 23%; /* #1d3557 */
+    --foreground: 96 67% 96%; /* #f1faee */
 
-    --card: 206 96% 28%; /* #023E8A from mockup dark mode card background */
-    --card-foreground: 200 78% 96%; /* #CAF0F8 */
+    --card: 207 39% 30%; /* Darker version of #457b9d */
+    --card-foreground: 96 67% 96%; /* #f1faee */
 
-    --popover: 222 68% 10%; /* #0A0F2C */
-    --popover-foreground: 200 78% 96%; /* #CAF0F8 */
+    --popover: 217 54% 23%; /* #1d3557 */
+    --popover-foreground: 96 67% 96%; /* #f1faee */
 
-    --primary: 190 100% 42%; /* #00B4D8 */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 207 39% 55%; /* Lighter #457b9d */
+    --primary-foreground: 217 54% 15%; /* Darker #1d3557 */
 
-    --secondary: 200 67% 89%; /* #ADE8F4 Light cyan for dark theme secondary elements */
-    --secondary-foreground: 237 91% 19%; /* #03045E for contrast on light secondary */
+    --secondary: 182 38% 65%; /* Darker #a8dadc */
+    --secondary-foreground: 217 54% 23%; /* #1d3557 */
     
-    --muted: 215 39% 17%; /* #1F2937 from mockup dark resource section BG, or general muted */
-    --muted-foreground: 200 48% 78%; /* #90E0EF from mockup dark mode muted text */
+    --muted: 207 39% 28%; /* Darker card background */
+    --muted-foreground: 182 38% 76%; /* #a8dadc */
 
-    --accent: 198 78% 60%; /* #48CAE4 */
-    --accent-foreground: 222 68% 10%; /* #0A0F2C */
+    --accent: 182 38% 60%; /* Darker #a8dadc */
+    --accent-foreground: 217 54% 15%; /* Darker #1d3557 */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 355 78% 60%; /* Lighter #e63946 */
+    --destructive-foreground: 96 67% 96%; /* #f1faee */
 
-    --border: 206 96% 28%; /* #023E8A from mockup dark mode borders or footer border */
-    --input: 215 39% 17%; /* #1F2937 (or #111827 from search input) */
-    --ring: 190 100% 42%; /* #00B4D8 */
+    --border: 207 39% 35%; /* Slightly lighter than dark card bg */
+    --input: 207 39% 30%; /* Same as dark card bg */
+    --ring: 207 39% 55%; /* Primary color for dark mode */
     
     /* Chart colors - dark theme adjustments */
     --chart-1: 220 70% 50%;
@@ -92,13 +92,13 @@
   body {
     @apply bg-background text-foreground; 
     font-feature-settings: "rlig" 1, "calt" 1;
-    @apply overflow-x-hidden; /* From user's HTML mockup */
-    @apply transition-colors duration-300; /* From user's HTML mockup body */
+    @apply overflow-x-hidden;
+    @apply transition-colors duration-300;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold text-foreground; 
   }
-  h1 { @apply text-4xl sm:text-5xl tracking-tight; } /* Adjusted tracking as per mockup */
+  h1 { @apply text-4xl sm:text-5xl tracking-tight; }
   h2 { @apply text-3xl; }
   h3 { @apply text-2xl; }
   
@@ -107,25 +107,10 @@
   }
 
   section {
-    @apply py-14 md:py-20; /* Adjusted padding from mockup, default is py-20 */
+    @apply py-14 md:py-20;
   }
 }
 
-/* Styling for the WebGL Canvas Background - REMOVED */
-/*
-canvas#neuro {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  opacity: .95; 
-  z-index: -1; 
-}
-*/
-
-/* Remove sidebar specific styles as they are not used in this one-page layout */
 :root {
   --sidebar-background: transparent;
   --sidebar-foreground: transparent;
