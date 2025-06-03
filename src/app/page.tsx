@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 // import ChatbotWidget from '@/components/chatbot/ChatbotWidget'; // Removed
 import { NavBar } from "@/components/ui/tubelight-navbar"; // Import NavBar
 import { Home, FileText, Mail } from 'lucide-react'; // Import icons
-import NeonGradientCardDemo from '@/components/sections/NeonGradientCardDemo';
+// import NeonGradientCardDemo from '@/components/sections/NeonGradientCardDemo'; // Removed
 
 
 const navBarItems = [
@@ -34,13 +34,14 @@ export default function HomePage() {
         */}
         <ResourcesSection />
         
-        {/* Example of using the NeonGradientCardDemo */}
+        {/* Example of using the NeonGradientCardDemo - REMOVED
         <section id="neon-demo" className="py-12">
           <div className="container mx-auto px-4">
              <h2 className="text-3xl font-bold text-center mb-8">Neon Card Demo</h2>
             <NeonGradientCardDemo />
           </div>
-        </section>
+        </section> 
+        */}
         
         <div className="container mx-auto px-4">
           <Separator className="my-8 md:my-12" /> {/* Increased margin */}
