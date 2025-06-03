@@ -32,7 +32,7 @@ export interface Resource {
 
 const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
 const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
-const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Job Preparation', 'Uncategorized'];
+const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab Manuals', 'Books', 'Uncategorized'];
 
 
 const getFileIcon = (type: Resource['type']) => {
@@ -155,7 +155,7 @@ export default function ResourcesSection() {
         </p>
       </div>
 
-      <Card className="mb-12 shadow-lg border-border/60 bg-card/80 backdrop-blur-sm">
+      <Card className="mb-12 shadow-lg border-border/60 bg-card/80 backdrop-blur-sm relative z-20">
         <CardHeader className="border-b border-border/40 pb-4">
           <CardTitle className="flex items-center gap-2 text-xl"><Filter size={20} /> Filter & Search Resources</CardTitle>
         </CardHeader>
@@ -314,12 +314,12 @@ export default function ResourcesSection() {
           {filteredResources.map(resource => (
             <NeonGradientCard
               key={resource.id}
-              className="hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1"
-              neonColors={{ firstColor: '#00B4D8', secondColor: '#48CAE4' }} // Theme-aligned neon colors
-              borderRadius={12} // Match original card's rounded-lg (0.75rem)
+              className="hover:shadow-xl transition-shadow duration-300 ease-in-out"
+              neonColors={{ firstColor: '#00B4D8', secondColor: '#48CAE4' }}
+              borderRadius={12}
             >
-              <div className="flex flex-col h-full justify-between"> {/* Inner div for content structure */}
-                <div> {/* Top part: Icon, Title, Descriptions, Tags */}
+              <div className="relative z-[1] flex flex-col h-full justify-between pointer-events-auto">
+                <div> 
                   <div className="flex justify-between items-start mb-2">
                     {getFileIcon(resource.type)}
                     <div className="flex gap-1.5 flex-wrap justify-end">
@@ -346,7 +346,7 @@ export default function ResourcesSection() {
                   )}
                 </div>
 
-                <div className="flex gap-2 mt-auto"> {/* Bottom part: Buttons */}
+                <div className="flex gap-2 mt-auto"> 
                   <Button asChild size="sm" className="flex-1 group">
                     <Link href={resource.downloadUrl} target="_blank" rel="noopener noreferrer">
                       Download
@@ -388,5 +388,3 @@ export default function ResourcesSection() {
     </section>
   );
 }
-
-
