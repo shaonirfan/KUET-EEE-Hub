@@ -1,11 +1,18 @@
+'use client';
+
 import Link from 'next/link';
-import { Zap, Facebook, ExternalLink } from 'lucide-react'; // Using Zap as placeholder KUET logo
+import { Zap, Facebook, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
-  // This should be dynamic if possible, or manually updated. For now, use a static or build-time date.
-  const lastUpdatedDate = format(new Date(), "MMMM d, yyyy"); // Example: May 28, 2025
+  const [currentYear, setCurrentYear] = useState<number | string>('...');
+  const [lastUpdatedDate, setLastUpdatedDate] = useState<string>('Loading...');
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+    setLastUpdatedDate(format(new Date(), "MMMM d, yyyy"));
+  }, []); // Empty dependency array ensures this runs once on mount (client-side)
 
   return (
     <footer className="border-t border-border/40 bg-background">
