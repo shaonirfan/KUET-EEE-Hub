@@ -60,11 +60,11 @@ export function NavBar({ items, className }: NavBarProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-6 sm:mt-6 sm:pt-0", // Adjusted sm:pt-6 to sm:mt-6 for consistency and sm:pt-0
+        "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-6 sm:mt-6 sm:pt-0",
         className,
       )}
     >
-      <div className="flex items-center gap-1 sm:gap-3 bg-card/60 border border-border backdrop-blur-lg py-1.5 px-1.5 sm:py-2 sm:px-2 rounded-full shadow-xl">
+      <div className="flex items-center gap-1 sm:gap-2 bg-card/80 border border-border backdrop-blur-lg py-1 px-1 sm:py-1.5 sm:px-1.5 rounded-full shadow-xl">
         {items.map((item) => {
           const Icon = item.icon
           const isActive = activeTab === item.name
@@ -75,7 +75,7 @@ export function NavBar({ items, className }: NavBarProps) {
               href={item.url}
               onClick={() => setActiveTab(item.name)}
               className={cn(
-                "relative cursor-pointer text-xs sm:text-sm font-medium px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full transition-colors duration-200 ease-in-out",
+                "relative cursor-pointer text-xs sm:text-sm font-medium px-3 py-1 sm:px-4 sm:py-1.5 rounded-full transition-colors duration-200 ease-in-out",
                 "text-muted-foreground hover:text-primary",
                 isActive && "text-primary",
               )}
@@ -83,12 +83,12 @@ export function NavBar({ items, className }: NavBarProps) {
             >
               <span className="hidden md:inline">{item.name}</span>
               <span className="md:hidden">
-                <Icon size={isMobile ? 18 : 20} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon size={isMobile ? 16 : 18} strokeWidth={isActive ? 2.5 : 2} />
               </span>
               {isActive && (
                 <motion.div
                   layoutId="lamp"
-                  className="absolute inset-0 w-full bg-primary/10 rounded-full -z-10"
+                  className="absolute inset-0 w-full bg-primary/15 rounded-full -z-10"
                   initial={false}
                   transition={{
                     type: "spring",
@@ -96,10 +96,10 @@ export function NavBar({ items, className }: NavBarProps) {
                     damping: 30,
                   }}
                 >
-                  <div className="absolute -top-1.5 sm:-top-2 left-1/2 -translate-x-1/2 w-6 h-0.5 sm:w-8 sm:h-1 bg-primary rounded-t-full">
-                    <div className="absolute w-10 h-5 sm:w-12 sm:h-6 bg-primary/10 rounded-full blur-md -top-1.5 sm:-top-2 -left-2" />
-                    <div className="absolute w-6 h-5 sm:w-8 sm:h-6 bg-primary/10 rounded-full blur-md -top-1 sm:-top-1" />
-                    <div className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-primary/20 rounded-full blur-sm top-0 left-1/2 -translate-x-1/2" />
+                  <div className="absolute -top-1 sm:-top-1.5 left-1/2 -translate-x-1/2 w-6 h-px sm:w-7 sm:h-px bg-primary rounded-t-full">
+                    <div className="absolute w-8 h-3 sm:w-10 sm:h-3 bg-primary/10 rounded-full blur-md -top-1 sm:-top-1 -left-1" />
+                    <div className="absolute w-5 h-3 sm:w-6 sm:h-3 bg-primary/10 rounded-full blur-md -top-0.5 sm:-top-0.5" />
+                    <div className="absolute w-2 h-2 sm:w-3 sm:h-2 bg-primary/20 rounded-full blur-sm top-0 left-1/2 -translate-x-1/2" />
                   </div>
                 </motion.div>
               )}
@@ -110,4 +110,3 @@ export function NavBar({ items, className }: NavBarProps) {
     </div>
   )
 }
-
