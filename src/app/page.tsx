@@ -22,7 +22,7 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <NavBar items={navBarItems} /> {/* Add NavBar here */}
-      <main className="flex-grow pt-16"> {/* Add pt-16 to main to account for NavBar potentially at top */}
+      <main className="flex-grow"> {/* Removed pt-12 */}
         <HeroSection />
         {/* <AboutSection /> // Removed */}
         {/* Removed separator that was after AboutSection 
