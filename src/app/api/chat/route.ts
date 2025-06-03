@@ -27,18 +27,25 @@ export async function POST(request: NextRequest) {
       if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
         botReply = "Hello! I'm the KUET EEE Hub assistant. How can I help you find resources today?";
       } else if (lowerMessage.includes('vlsi')) {
-        botReply = "I can look for VLSI resources. Based on our records, you might find 'VLSI Design Notes' helpful. You can also filter by '4th Year' and 'VLSI Design' in the resources section for more.";
+        // Simulate finding a resource and providing links
+        const resourceName = "VLSI Design Comprehensive Notes (4th Year)";
+        const viewUrl = "https://docs.google.com/document/d/exampleview/view?usp=sharing"; // Placeholder
+        const downloadUrl = "https://drive.google.com/uc?export=download&id=exampledownload"; // Placeholder
+        botReply = `I found a resource that might be helpful: \n'${resourceName}'.\nYou can [View it here](${viewUrl}) or [Download it directly](${downloadUrl}).\nLet me know if you need anything else!`;
       } else if (lowerMessage.includes('notes') || lowerMessage.includes('slides')) {
         botReply = "For notes or slides, please specify the course name or year. For example, '4th year VLSI notes' or 'slides for EEE 2101'.";
       } else if (lowerMessage.includes('job prep')) {
-        botReply = "We have a 'Job Preparation' category with various materials. Check it out in the Resources section!";
+        const resourceName = "Common Interview Questions - EEE.pdf";
+        const viewUrl = "https://docs.google.com/document/d/examplejobprep/view?usp=sharing";
+        const downloadUrl = "https://drive.google.com/uc?export=download&id=examplejobprep";
+        botReply = `For job preparation, you might find '${resourceName}' useful. \n[View Document](${viewUrl}) | [Download Document](${downloadUrl}).\nCheck the 'Resources' section for more under the 'Job Preparation' category.`;
       } else if (lowerMessage.includes('book')) {
-        botReply = "Looking for books? You can browse the 'Books' category or search by specific course names in the Resources section.";
+        botReply = "Looking for books? You can browse the 'Books' category or search by specific course names in the Resources section. For example, I found 'Fundamentals of Electric Circuits by Alexander & Sadiku'. I can provide a link if you specify you'd like one for this book.";
       } else if (lowerMessage.includes('thank')) {
         botReply = "You're welcome! Let me know if there's anything else.";
       }
       else {
-        botReply = `I've received your message: "${userMessage}". I'll try my best to find relevant materials. You can always browse all resources in the 'Resources' section.`;
+        botReply = `I've received your message: "${userMessage}". I'll try my best to find relevant materials. You can always browse all resources in the 'Resources' section. If you're looking for something specific, try asking like "4th year VLSI notes".`;
       }
       return NextResponse.json({ reply: botReply });
 
@@ -60,6 +67,7 @@ export async function POST(request: NextRequest) {
 
       const n8nData = await n8nResponse.json();
       // Assuming n8n responds with a JSON like { "reply": "..." }
+      // The reply should contain Markdown links if you've configured Gemini to produce them.
       const botReply = n8nData.reply || "I received a response, but it was not in the expected format."; 
       return NextResponse.json({ reply: botReply });
     }
