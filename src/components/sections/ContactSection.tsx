@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, User, Info, Facebook, ExternalLink, MessageCircle, Briefcase, Send } from 'lucide-react';
+import { Mail, User, Info, Facebook, ExternalLink, MessageCircle, Briefcase, Send, Linkedin } from 'lucide-react'; // Added Linkedin
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -51,6 +51,15 @@ export default function ContactSection() {
                   <h4 className="font-medium text-foreground">Facebook</h4>
                   <Link href="https://www.facebook.com/shaon.irfan/" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     facebook.com/shaon.irfan/
+                  </Link>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <Linkedin className="h-5 w-5 mt-1 text-primary shrink-0" />
+                <div>
+                  <h4 className="font-medium text-foreground">LinkedIn</h4>
+                  <Link href="https://www.linkedin.com/in/shaon-irfan-ba5b03b4" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    linkedin.com/in/shaon-irfan
                   </Link>
                 </div>
               </div>
