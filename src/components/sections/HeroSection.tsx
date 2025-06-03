@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -12,7 +13,7 @@ export default function HeroSection() {
         aria-hidden="true"
       >
         <div
-          className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary/30 via-accent/30 to-secondary/30 opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+          className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary/40 via-accent/40 to-secondary/40 opacity-40 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem] dark:opacity-30"
           style={{
             clipPath:
               'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
@@ -21,7 +22,7 @@ export default function HeroSection() {
       </div>
       
       <div className="container mx-auto px-4 text-center">
-        <h1 className="font-display text-4xl tracking-normal text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-snug">
+        <h1 className="text-4xl tracking-normal text-foreground sm:text-5xl md:text-6xl lg:text-7xl leading-snug [text-shadow:0_1px_3px_rgba(0,0,0,0.1)] dark:[text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
           <span className="text-primary">KUET EEE Hub:</span> All Your Essential Resources - One Click Away.
         </h1>
         <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl md:text-2xl max-w-3xl mx-auto">
@@ -47,7 +48,7 @@ export default function HeroSection() {
       </div>
       
       {/* Optional subtle background image if needed, ensure it works with gradient */}
-      <div className="absolute inset-0 -z-20 opacity-5 dark:opacity-[0.03]">
+      <div className="absolute inset-0 -z-20 opacity-[0.03] dark:opacity-[0.02]">
            <Image
             src="https://placehold.co/1920x1080.png?a=1" // Added query param to ensure different placeholder
             alt="Abstract technology pattern"

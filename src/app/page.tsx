@@ -1,3 +1,4 @@
+
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/sections/HeroSection';
@@ -20,7 +21,7 @@ export default function HomePage() {
         */}
         <ResourcesSection />
         <div className="container mx-auto px-4">
-          <Separator className="my-0 md:my-0" /> {/* Reduced margin */}
+          <Separator className="my-8 md:my-12" /> {/* Increased margin */}
         </div>
         <ContactSection />
       </main>

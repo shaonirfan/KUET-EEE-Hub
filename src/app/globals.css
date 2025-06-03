@@ -20,8 +20,8 @@
     --secondary: 182 38% 76%; /* #a8dadc */
     --secondary-foreground: 217 54% 23%; /* #1d3557 */
 
-    --muted: 182 38% 90%; /* Lighter #a8dadc */
-    --muted-foreground: 207 39% 44%; /* #457b9d */
+    --muted: 210 25% 94%; /* Adjusted: very light grey-blue */
+    --muted-foreground: 207 39% 44%; /* #457b9d - text on muted */
 
     --accent: 182 38% 76%; /* #a8dadc */
     --accent-foreground: 217 54% 23%; /* #1d3557 */
@@ -29,13 +29,13 @@
     --destructive: 355 78% 56%; /* #e63946 */
     --destructive-foreground: 96 67% 96%; /* #f1faee */
 
-    --border: 182 38% 70%; /* Darker #a8dadc */
-    --input: 182 38% 70%; /* Darker #a8dadc */
+    --border: 210 20% 88%; /* Adjusted: light grey-blue */
+    --input: 210 20% 88%; /* Adjusted: light grey-blue */
     --ring: 207 39% 44%; /* #457b9d */
 
     --radius: 0.75rem;
 
-    /* Chart colors - kept original for now */
+    /* Chart colors */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -47,10 +47,10 @@
     --background: 217 54% 23%; /* #1d3557 */
     --foreground: 96 67% 96%; /* #f1faee */
 
-    --card: 207 39% 30%; /* Darker version of #457b9d */
+    --card: 210 15% 18%; /* Adjusted: Neutral dark grey-blue */
     --card-foreground: 96 67% 96%; /* #f1faee */
 
-    --popover: 217 54% 23%; /* #1d3557 */
+    --popover: 217 54% 18%; /* Darker version of background */
     --popover-foreground: 96 67% 96%; /* #f1faee */
 
     --primary: 207 39% 55%; /* Lighter #457b9d */
@@ -59,8 +59,8 @@
     --secondary: 182 38% 65%; /* Darker #a8dadc */
     --secondary-foreground: 217 54% 23%; /* #1d3557 */
     
-    --muted: 207 39% 28%; /* Darker card background */
-    --muted-foreground: 182 38% 76%; /* #a8dadc */
+    --muted: 210 15% 22%; /* Adjusted: darker grey-blue */
+    --muted-foreground: 182 38% 70%; /* Adjusted: Lighter accent for text on muted */
 
     --accent: 182 38% 60%; /* Darker #a8dadc */
     --accent-foreground: 217 54% 15%; /* Darker #1d3557 */
@@ -68,8 +68,8 @@
     --destructive: 355 78% 60%; /* Lighter #e63946 */
     --destructive-foreground: 96 67% 96%; /* #f1faee */
 
-    --border: 207 39% 35%; /* Slightly lighter than dark card bg */
-    --input: 207 39% 30%; /* Same as dark card bg */
+    --border: 210 12% 28%; /* Adjusted: dark grey-blue */
+    --input: 210 15% 22%; /* Adjusted: darker grey-blue (same as muted) */
     --ring: 207 39% 55%; /* Primary color for dark mode */
     
     /* Chart colors - dark theme adjustments */

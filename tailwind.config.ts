@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,7 +19,7 @@ export default {
   	extend: {
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'], // Use Inter as primary sans-serif
-        display: ['Bree Serif', 'serif'], // Added Bree Serif for display purposes
+        // display: ['Bree Serif', 'serif'], // Removed to rely on Inter consistently
       },
   		colors: {
   			background: 'hsl(var(--background))',
