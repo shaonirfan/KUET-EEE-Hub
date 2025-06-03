@@ -60,11 +60,15 @@ export function NavBar({ items, className }: NavBarProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-2 sm:mt-2 sm:mb-0 sm:pt-0", // Adjusted margins
+        "fixed bottom-0 sm:top-0 left-1/2 -translate-x-1/2 z-50 mb-2 sm:mt-2 sm:mb-0 sm:pt-0",
+        "pointer-events-none", // Allow clicks to pass through the container
         className,
       )}
     >
-      <div className="flex items-center gap-1 sm:gap-2 bg-card/80 border border-border backdrop-blur-lg py-1 px-1 sm:py-1.5 sm:px-1.5 rounded-full shadow-xl">
+      <div className={cn(
+        "flex items-center gap-1 sm:gap-2 bg-card/80 border border-border backdrop-blur-lg py-1 px-1 sm:py-1.5 sm:px-1.5 rounded-full shadow-xl",
+        "pointer-events-auto" // Make the visible bar interactive
+        )}>
         {items.map((item) => {
           const Icon = item.icon
           const isActive = activeTab === item.name
