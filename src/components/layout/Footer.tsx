@@ -50,11 +50,6 @@ export default function Footer() {
                   KUET Main Site <ExternalLink size={14} className="ml-1" />
                 </Link>
               </li>
-               <li>
-                <Link href="https://www.facebook.com/groups/kuet.eee.family" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center" target="_blank" rel="noopener noreferrer" aria-label="KUET EEE Facebook Group">
-                  <Facebook size={16} className="mr-2" /> EEE Facebook Group
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
