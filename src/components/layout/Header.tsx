@@ -1,9 +1,10 @@
+
 "use client";
 import Link from 'next/link';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/components/ui/theme-toggle'; // Updated import path
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet'; // Added SheetTitle
-import { Menu, Zap } from 'lucide-react'; // Using Zap as a placeholder logo icon
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet';
+import { Menu, Zap } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -15,7 +16,7 @@ const navItems = [
 ];
 
 export default function Header() {
-  const pathname = usePathname(); // Can be used to highlight active section if needed, though not for # links directly
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -32,7 +33,6 @@ export default function Header() {
               href={item.href}
               className={cn(
                 "px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary rounded-md",
-                // Example for active state if using full paths: pathname === item.href ? "text-primary bg-primary/10" : ""
               )}
             >
               {item.label}
@@ -50,7 +50,7 @@ export default function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] sm:w-[320px]">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle> {/* Added visually hidden title */}
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <nav className="grid gap-2 text-base font-medium mt-8">
                   <Link href="/" className="flex items-center space-x-2 mb-6 px-2" aria-label="KUET EEE Hub Home">
                     <Zap className="h-6 w-6 text-primary" />
