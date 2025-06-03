@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Briefcase } from 'lucide-react';
+import { ArrowRight, Send } from 'lucide-react'; // Added Send icon
 
 export default function HeroSection() {
   return (
@@ -35,22 +35,19 @@ export default function HeroSection() {
               <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </Button>
-          {/* Optional CTA for Job Prep Hub */}
-          {/* 
-          <Button asChild variant="ghost" size="lg" className="text-muted-foreground hover:text-primary transform hover:-translate-y-0.5 transition-all duration-300 ease-in-out">
-            <Link href="#job-prep">
-              <Briefcase className="mr-2 h-5 w-5" />
-              Job Prep Hub
+          <Button asChild variant="outline" size="lg" className="group shadow-md hover:shadow-accent/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
+            <Link href="https://t.me/eee_20_bot" target="_blank" rel="noopener noreferrer">
+              Chat with EEE Bot
+              <Send className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
             </Link>
           </Button>
-          */}
         </div>
       </div>
       
       {/* Optional subtle background image if needed, ensure it works with gradient */}
       <div className="absolute inset-0 -z-20 opacity-[0.03] dark:opacity-[0.02]">
            <Image
-            src="https://placehold.co/1920x1080.png?a=1" // Added query param to ensure different placeholder
+            src="https://placehold.co/1920x1080.png?a=1" 
             alt="Abstract technology pattern"
             layout="fill"
             objectFit="cover"
