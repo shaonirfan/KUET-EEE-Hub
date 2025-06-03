@@ -4,13 +4,15 @@
 import React, { useState, useMemo, useEffect, type ChangeEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+// Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle are no longer directly used for resource items
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, Loader2, Info, BookUser, UserSquare, ArrowRight, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { NeonGradientCard } from '@/components/ui/neon-gradient-card'; // Import NeonGradientCard
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'; // Keep for error message and skeleton
 
 export interface Resource {
   id: string;
@@ -23,8 +25,8 @@ export interface Resource {
   category: string;
   isNew: boolean;
   isPopular: boolean;
-  viewUrl: string; // Changed from url
-  downloadUrl: string; // New field
+  viewUrl: string;
+  downloadUrl: string;
   tags?: string[];
 }
 
@@ -36,7 +38,7 @@ const staticCategories = ['All Categories', 'Lecture Notes', 'Past Papers', 'Lab
 const getFileIcon = (type: Resource['type']) => {
   switch (type) {
     case 'PDF': return <FileText className="h-5 w-5 text-primary" />;
-    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />; // Consider a more specific DOCX icon if available
+    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />;
     case 'PPT': return <Presentation className="h-5 w-5 text-primary" />;
     default: return <FileText className="h-5 w-5 text-primary" />;
   }
@@ -73,27 +75,22 @@ export default function ResourcesSection() {
         const data: Resource[] = await response.json();
         setAllResources(data);
 
-        // Populate unique course names
         const fetchedCourseNames = ['All Courses', ...[...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort()];
         setUniqueCourseNames(fetchedCourseNames);
         
-        // Populate unique teacher names, ensuring "All Teachers" is first and unique
         let dynamicTeacherNames = [...new Set(data.map(r => r.teacherName).filter(Boolean as any) as string[])].sort();
         if (dynamicTeacherNames.includes('All Teachers')) {
             dynamicTeacherNames = dynamicTeacherNames.filter(tn => tn !== 'All Teachers');
         }
         setUniqueTeacherNames(['All Teachers', ...dynamicTeacherNames]);
 
-
-        // Populate unique categories, ensuring staticCategories are handled correctly and "All Categories" is first and unique
         let dynamicCategories = [...new Set(data.map(r => r.category).filter(Boolean as any) as string[])].sort();
-        const baseCategories = staticCategories.filter(sc => sc !== 'All Categories'); // Static without "All"
+        const baseCategories = staticCategories.filter(sc => sc !== 'All Categories');
         
-        dynamicCategories = dynamicCategories.filter(dc => dc !== 'All Categories' && !baseCategories.includes(dc)); // Dynamic that are not in static
+        dynamicCategories = dynamicCategories.filter(dc => dc !== 'All Categories' && !baseCategories.includes(dc));
         
         const combined = [...baseCategories, ...dynamicCategories].sort();
         setUniqueCategories(['All Categories', ...combined]);
-
 
       } catch (err) {
         if (err instanceof Error) {
@@ -101,7 +98,7 @@ export default function ResourcesSection() {
         } else {
           setError('An unknown error occurred');
         }
-        setAllResources([]); // Clear resources on error
+        setAllResources([]);
       } finally {
         setIsLoading(false);
       }
@@ -110,9 +107,9 @@ export default function ResourcesSection() {
   }, []);
 
   const filteredResources = useMemo(() => {
-    if (isLoading) return []; // Don't filter if still loading initial data
+    if (isLoading) return [];
     return allResources.filter(resource =>
-      ( // Search term logic
+      (
         resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (resource.courseName && resource.courseName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (resource.teacherName && resource.teacherName.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -239,7 +236,7 @@ export default function ResourcesSection() {
                 </Select>
               </div>
 
-              <div className="md:col-span-2"> {/* Category filter spans full width */}
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
                 <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
                   <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
@@ -252,7 +249,6 @@ export default function ResourcesSection() {
                 </Tabs>
               </div>
             </div>
-
 
             <div className="flex justify-end items-center mt-2">
               {activeFiltersCount > 0 && (
@@ -268,7 +264,8 @@ export default function ResourcesSection() {
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
-            <Card key={index} className="flex flex-col bg-card">
+            // Skeleton remains a standard Card for simplicity
+            <Card key={index} className="flex flex-col bg-card"> 
               <CardHeader className="pb-3">
                 <Skeleton className="h-5 w-5 mb-2" />
                 <Skeleton className="h-4 w-3/4 mb-1" />
@@ -281,10 +278,10 @@ export default function ResourcesSection() {
                   <Skeleton className="h-5 w-16 rounded-full" />
                 </div>
               </CardContent>
-              <CardFooter className="pt-0 flex gap-2">
+              <div className="p-6 pt-0 flex gap-2"> {/* Mimic CardFooter structure for Skeleton */}
                 <Skeleton className="h-9 flex-1" />
                 <Skeleton className="h-9 flex-1" />
-              </CardFooter>
+              </div>
             </Card>
           ))}
         </div>
@@ -315,46 +312,56 @@ export default function ResourcesSection() {
       {!isLoading && !error && filteredResources.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredResources.map(resource => (
-            <Card key={resource.id} className="flex flex-col bg-card hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start mb-2">
-                  {getFileIcon(resource.type)}
-                  <div className="flex gap-1.5 flex-wrap justify-end">
-                    {resource.isNew && <Badge variant="default" className="text-xs px-1.5 py-0.5 bg-primary/90 text-primary-foreground">New!</Badge>}
-                    {resource.isPopular && <Badge variant="secondary" className="text-xs px-1.5 py-0.5">Popular</Badge>}
+            <NeonGradientCard
+              key={resource.id}
+              className="hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:-translate-y-1"
+              neonColors={{ firstColor: '#00B4D8', secondColor: '#48CAE4' }} // Theme-aligned neon colors
+              borderRadius={12} // Match original card's rounded-lg (0.75rem)
+            >
+              <div className="flex flex-col h-full justify-between"> {/* Inner div for content structure */}
+                <div> {/* Top part: Icon, Title, Descriptions, Tags */}
+                  <div className="flex justify-between items-start mb-2">
+                    {getFileIcon(resource.type)}
+                    <div className="flex gap-1.5 flex-wrap justify-end">
+                      {resource.isNew && <Badge variant="default" className="text-xs px-1.5 py-0.5 bg-primary/90 text-primary-foreground">New!</Badge>}
+                      {resource.isPopular && <Badge variant="secondary" className="text-xs px-1.5 py-0.5">Popular</Badge>}
+                    </div>
                   </div>
-                </div>
-                <CardTitle className="text-lg leading-tight line-clamp-2" title={resource.name}>{resource.name}</CardTitle>
-                 <CardDescription className="text-xs truncate" title={`${resource.courseName ? resource.courseName : ''}${resource.category ? ' • ' + resource.category : ''}${resource.teacherName && resource.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + resource.teacherName : ''}`}>
+                  <h3 className="text-lg font-semibold leading-tight line-clamp-2 text-foreground mb-1" title={resource.name}>
+                    {resource.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground truncate mb-0.5" title={`${resource.courseName ? resource.courseName : ''}${resource.category ? ' • ' + resource.category : ''}${resource.teacherName && resource.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + resource.teacherName : ''}`}>
                     {resource.courseName ? resource.courseName : ''}
                     {resource.category ? <><span className="mx-1">&bull;</span>{resource.category}</> : ''}
                     {resource.teacherName && resource.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{resource.teacherName}</> : ''}
-                </CardDescription>
-                <CardDescription className="text-xs">{resource.year} &bull; {resource.semester}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow pt-0 pb-3">
-                {resource.tags && resource.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {resource.tags.slice(0, 3).map(tag => <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5">{tag}</Badge>)}
-                    {resource.tags.length > 3 && <Badge variant="outline" className="text-xs px-1.5 py-0.5">+{resource.tags.length - 3}</Badge>}
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter className="pt-0 flex gap-2">
-                <Button asChild size="sm" className="flex-1 group">
-                  <Link href={resource.downloadUrl} target="_blank" rel="noopener noreferrer">
-                    Download
-                    <Download className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm" className="flex-1 group">
-                  <Link href={resource.viewUrl} target="_blank" rel="noopener noreferrer">
-                    View
-                    <Eye className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {resource.year} &bull; {resource.semester}
+                  </p>
+                  {resource.tags && resource.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {resource.tags.slice(0, 3).map(tag => <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5">{tag}</Badge>)}
+                      {resource.tags.length > 3 && <Badge variant="outline" className="text-xs px-1.5 py-0.5">+{resource.tags.length - 3}</Badge>}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 mt-auto"> {/* Bottom part: Buttons */}
+                  <Button asChild size="sm" className="flex-1 group">
+                    <Link href={resource.downloadUrl} target="_blank" rel="noopener noreferrer">
+                      Download
+                      <Download className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="flex-1 group">
+                    <Link href={resource.viewUrl} target="_blank" rel="noopener noreferrer">
+                      View
+                      <Eye className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </NeonGradientCard>
           ))}
         </div>
       )}
@@ -381,3 +388,5 @@ export default function ResourcesSection() {
     </section>
   );
 }
+
+
