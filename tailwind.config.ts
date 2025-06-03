@@ -116,11 +116,17 @@ export default {
             backgroundPosition: "350% 50%, 350% 50%",
           },
         },
+        "background-position-spin": { // Added new keyframe
+          "0%": { backgroundPosition: "top center" },
+          "100%": { backgroundPosition: "bottom center" },
+        },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
         aurora: "aurora 60s linear infinite",
+        "background-position-spin": // Added new animation
+          "background-position-spin 3000ms infinite alternate",
   		}
   	}
   },
