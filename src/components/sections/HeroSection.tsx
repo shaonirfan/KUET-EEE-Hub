@@ -27,7 +27,7 @@ export default function HeroSection() {
            <span className="text-primary dark:text-primary">KUET EEE Hub:</span> All Your Essential Resources - One Click Away.
         </h1>
         <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl md:text-2xl max-w-3xl mx-auto dark:text-neutral-200">
-          Your direct path to essential course materials, job preparation resources, and insights into our leading EEE program.
+          Your direct path to essential course materials and insights into our leading EEE program.
         </p>
         
         {/* Original buttons, kept structure but they will be children of motion.div */}
@@ -40,7 +40,7 @@ export default function HeroSection() {
           </Button>
           <Button asChild variant="outline" size="lg" className="group shadow-md hover:shadow-accent/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 bg-transparent dark:bg-transparent border-foreground/50 hover:border-primary dark:border-white/50 dark:hover:border-primary text-foreground dark:text-white hover:text-primary dark:hover:text-primary">
             <Link href="https://t.me/eee_20_bot" target="_blank" rel="noopener noreferrer">
-              Chat with EEE Bot
+              Chat with EEE'20 Bot
               <Send className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
             </Link>
           </Button>
