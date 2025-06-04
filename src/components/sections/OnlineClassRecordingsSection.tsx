@@ -54,7 +54,7 @@ const mockRecordings: Recording[] = [
   {
     id: 'rec3',
     title: 'Communication Systems - Modulation Techniques',
-    youtubeVideoId: 'dQw4w9WgXcQ',
+    youtubeVideoId: 'dQw4w9WgXcQ', // Example placeholder
     year: '4th Year',
     semester: '1st Sem',
     courseName: 'EEE4103 Communication Systems',
@@ -65,7 +65,7 @@ const mockRecordings: Recording[] = [
    {
     id: 'rec4',
     title: 'Power Electronics - Converters',
-    youtubeVideoId: '3JZ_D3ELwOQ',
+    youtubeVideoId: '3JZ_D3ELwOQ', // Example placeholder
     year: '4th Year',
     semester: '1st Sem',
     courseName: 'EEE4105 Power Electronics',
@@ -76,7 +76,7 @@ const mockRecordings: Recording[] = [
   {
     id: 'rec5',
     title: 'Control Systems - Stability Analysis',
-    youtubeVideoId: '0VIY2x511pk',
+    youtubeVideoId: '0VIY2x511pk', // Example placeholder
     year: '3rd Year',
     semester: '2nd Sem',
     courseName: 'EEE3205 Control Systems',
@@ -90,7 +90,7 @@ const mockRecordings: Recording[] = [
     youtubeVideoId: '2VHFELPIPNQ',
     year: '4th Year',
     semester: '1st Sem',
-    courseName: 'EE 4105 - Communication Engineering 2', // Note: This course name slightly differs from rec4
+    courseName: 'EE 4105 - Communication Engineering 2', 
     teacherName: 'Prof MD Rafiqul Islam Sir (RI1)',
     tags: ['communication', 'engineering', 'ee4105', 'rafiqul islam'],
     description: 'Lecture on Communication Engineering 2 by Prof MD Rafiqul Islam Sir.'
@@ -98,11 +98,11 @@ const mockRecordings: Recording[] = [
   {
     id: 'rec7',
     title: 'VLSI Design - Advanced Topics',
-    youtubeVideoId: 'exampleVideoId7',
+    youtubeVideoId: 'exampleVideoId7', // Example placeholder
     year: '3rd Year',
     semester: '1st Sem',
-    courseName: 'EEE3101 VLSI Design I', // Same course as rec1
-    teacherName: 'Dr. Example Teacher E', // Different teacher for the same course
+    courseName: 'EEE3101 VLSI Design I', 
+    teacherName: 'Dr. Example Teacher E', 
     tags: ['vlsi', 'advanced', 'fabrication'],
     description: 'Advanced topics in VLSI, including fabrication processes.'
   },
@@ -113,6 +113,7 @@ export default function OnlineClassRecordingsSection() {
   const [allRecordings, setAllRecordings] = useState<Recording[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>(baseYears[0]);
@@ -123,23 +124,57 @@ export default function OnlineClassRecordingsSection() {
   useEffect(() => {
     setIsLoading(true);
     setError(null);
+    // Simulate API call for recordings
     setTimeout(() => {
       setAllRecordings(mockRecordings);
       setIsLoading(false);
-    }, 1000);
+      // No need to set default filters here if userHasInteracted is false,
+      // as the initial prompt will be shown.
+    }, 1000); 
   }, []);
 
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setUserHasInteracted(true);
+  };
+
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year);
+    setSelectedCourseName('All Courses');
+    setSelectedTeacherName('All Teachers');
+    setUserHasInteracted(true);
+  };
+
+  const handleSemesterChange = (semester: string) => {
+    setSelectedSemester(semester);
+    setSelectedCourseName('All Courses');
+    setSelectedTeacherName('All Teachers');
+    setUserHasInteracted(true);
+  };
+
+  const handleCourseChange = (course: string) => {
+    setSelectedCourseName(course);
+    setSelectedTeacherName('All Teachers');
+    setUserHasInteracted(true);
+  };
+
+  const handleTeacherChange = (teacher: string) => {
+    setSelectedTeacherName(teacher);
+    setUserHasInteracted(true);
+  };
+
+
   const dynamicCourseNames = useMemo(() => {
-    if (isLoading || !selectedYear || !selectedSemester) return ['All Courses'];
+    if (!selectedYear || !selectedSemester) return ['All Courses'];
     const courses = new Set<string>();
     allRecordings
       .filter(r => r.year === selectedYear && r.semester === selectedSemester && r.courseName)
       .forEach(r => courses.add(r.courseName!));
     return ['All Courses', ...Array.from(courses).sort()];
-  }, [allRecordings, selectedYear, selectedSemester, isLoading]);
+  }, [allRecordings, selectedYear, selectedSemester]);
 
   const dynamicTeacherNames = useMemo(() => {
-    if (isLoading || !selectedYear || !selectedSemester) return ['All Teachers'];
+    if (!selectedYear || !selectedSemester) return ['All Teachers'];
     const teachers = new Set<string>();
     allRecordings
       .filter(r =>
@@ -149,52 +184,217 @@ export default function OnlineClassRecordingsSection() {
         r.teacherName
       )
       .forEach(r => teachers.add(r.teacherName!));
-    return ['All Teachers', ...Array.from(teachers).sort()];
-  }, [allRecordings, selectedYear, selectedSemester, selectedCourseName, isLoading]);
-
-  useEffect(() => {
-    setSelectedCourseName('All Courses');
-    // Teacher name will be reset by the effect below
-  }, [selectedYear, selectedSemester]);
-
-  useEffect(() => {
-    setSelectedTeacherName('All Teachers');
-  }, [selectedCourseName, selectedYear, selectedSemester]); // also depend on year/sem in case course list becomes empty
+    
+    const sortedTeachers = Array.from(teachers).sort();
+     if (sortedTeachers.length === 0 || (sortedTeachers.length > 0 && sortedTeachers[0] !== 'All Teachers' && !sortedTeachers.some(t => t.toLowerCase() === 'all teachers'))) {
+        return ['All Teachers', ...sortedTeachers.filter(tn => tn && tn.toLowerCase() !== 'all teachers')];
+    }
+    return sortedTeachers.filter(tn => tn);
+  }, [allRecordings, selectedYear, selectedSemester, selectedCourseName]);
 
 
   const filteredRecordings = useMemo(() => {
-    if (isLoading) return [];
-    return allRecordings.filter(recording =>
-      (
+    if (searchTerm.trim() !== '') {
+      // Global search mode
+      return allRecordings.filter(recording =>
         recording.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (recording.courseName && recording.courseName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (recording.teacherName && recording.teacherName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         recording.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      ) &&
-      (selectedYear ? recording.year === selectedYear : true) &&
-      (selectedSemester ? recording.semester === selectedSemester : true) &&
-      (selectedCourseName !== 'All Courses' ? recording.courseName === selectedCourseName : true) &&
-      (selectedTeacherName !== 'All Teachers' ? recording.teacherName === selectedTeacherName : true)
-    );
-  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, allRecordings, isLoading]);
+      );
+    } else {
+      // Filter-based mode
+      return allRecordings.filter(recording =>
+        (selectedYear ? recording.year === selectedYear : true) &&
+        (selectedSemester ? recording.semester === selectedSemester : true) &&
+        (selectedCourseName !== 'All Courses' ? recording.courseName === selectedCourseName : true) &&
+        (selectedTeacherName !== 'All Teachers' ? recording.teacherName === selectedTeacherName : true)
+      );
+    }
+  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, allRecordings]);
 
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedYear(baseYears[0]);
     setSelectedSemester(baseSemesters[0]);
-    // setSelectedCourseName('All Courses'); // This will be reset by the useEffect for year/semester change
-    // setSelectedTeacherName('All Teachers'); // This will be reset by the useEffect for course change
+    setSelectedCourseName('All Courses');
+    setSelectedTeacherName('All Teachers');
+    setUserHasInteracted(true); // Resetting is an interaction
   };
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
-    if (searchTerm) count++;
     if (selectedYear !== baseYears[0]) count++;
     if (selectedSemester !== baseSemesters[0]) count++;
     if (selectedCourseName !== 'All Courses') count++;
     if (selectedTeacherName !== 'All Teachers') count++;
     return count;
-  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName]);
+  }, [selectedYear, selectedSemester, selectedCourseName, selectedTeacherName]);
+
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, index) => (
+             <NeonGradientCard
+              key={`skel-rec-${index}`}
+              className="hover:shadow-xl transition-shadow duration-300 ease-in-out"
+              neonColors={{ firstColor: '#00B4D8', secondColor: '#48CAE4' }}
+              borderRadius={12}
+            >
+                <div className="relative z-[1] flex flex-col h-full justify-between pointer-events-auto p-1">
+                    <Skeleton className="h-4 w-3/4 mb-2 px-2 pt-2" />
+                    <div className="px-2 mb-2">
+                        <Skeleton className="aspect-video w-full rounded-md shadow-md" />
+                    </div>
+                    <Skeleton className="h-3 w-1/2 mb-1 px-2" />
+                    <Skeleton className="h-3 w-1/3 mb-3 px-2" />
+                     <div className="flex flex-wrap gap-1 mb-3 px-2">
+                        <Skeleton className="h-5 w-12 rounded-full" />
+                        <Skeleton className="h-5 w-16 rounded-full" />
+                    </div>
+                    <div className="px-2 pb-2 mt-auto">
+                        <Button asChild size="sm" className="w-full group" disabled>
+                            <div className="flex items-center justify-center">
+                                <Youtube className="mr-2 h-4 w-4" /> View on YouTube
+                            </div>
+                        </Button>
+                    </div>
+                </div>
+            </NeonGradientCard>
+          ))}
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+         <Card className="my-12 shadow-lg border-destructive/50 bg-destructive/10">
+            <CardHeader>
+                <CardTitle className="flex items-center text-destructive">
+                    <Info size={24} className="mr-2" /> Error Loading Recordings
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-destructive-foreground/90">
+                    There was an issue fetching the recordings.
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">Details: {error}</p>
+                <Button onClick={() => window.location.reload()} className="mt-4" variant="secondary">Try Again</Button>
+            </CardContent>
+        </Card>
+      );
+    }
+    
+    if (allRecordings.length === 0) {
+         return (
+           <div className="text-center py-16">
+            <Info className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
+            <p className="text-2xl font-semibold text-muted-foreground">No recordings available yet.</p>
+            <p className="text-md text-muted-foreground mt-2">
+               Please check back later as new recordings are added.
+            </p>
+          </div>
+        );
+    }
+
+    if (searchTerm.trim() !== '') {
+      if (filteredRecordings.length > 0) {
+        // Display search results
+      } else {
+        return (
+          <div className="text-center py-16">
+            <Search className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
+            <p className="text-2xl font-semibold text-muted-foreground">No recordings found for &quot;{searchTerm}&quot;.</p>
+            <p className="text-md text-muted-foreground mt-2">Try a different search term.</p>
+          </div>
+        );
+      }
+    } else { // Search term is empty
+      if (!userHasInteracted) {
+        return (
+          <div className="text-center py-16">
+            <Info className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
+            <p className="text-2xl font-semibold text-muted-foreground">Explore Class Recordings!</p>
+            <p className="text-md text-muted-foreground mt-2">
+              Use the filters or search bar above to find specific video lectures.
+            </p>
+          </div>
+        );
+      }
+      // User has interacted, search is empty
+      if (filteredRecordings.length === 0) {
+         return (
+           <div className="text-center py-16">
+            <Search className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
+            <p className="text-2xl font-semibold text-muted-foreground">No recordings match your current filters.</p>
+            <p className="text-md text-muted-foreground mt-2">Try adjusting your selections.</p>
+          </div>
+        );
+      }
+    }
+
+    // If we reach here, display filtered recordings
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredRecordings.map(recording => (
+          <NeonGradientCard
+            key={recording.id}
+            className="transition-shadow duration-300 ease-in-out"
+            neonColors={{ firstColor: '#00B4D8', secondColor: '#48CAE4' }}
+            borderRadius={12}
+          >
+            <div className="relative z-[1] flex flex-col h-full pointer-events-auto p-1 justify-between">
+              <div>
+                  <h3 className="text-lg font-semibold leading-tight line-clamp-2 text-foreground mb-1 px-2 pt-2" title={recording.title}>
+                      {recording.title}
+                  </h3>
+                  <div className="px-2 mb-2">
+                      <iframe
+                          width="100%"
+                          src={`https://www.youtube.com/embed/${recording.youtubeVideoId}`}
+                          title={recording.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen
+                          className="aspect-video rounded-md shadow-md"
+                      ></iframe>
+                  </div>
+                  {recording.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-1 px-2" title={recording.description}>
+                      {recording.description}
+                      </p>
+                  )}
+                  <p className="text-xs text-muted-foreground truncate mb-0.5 px-2" title={`${recording.courseName ? recording.courseName : ''}${recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + recording.teacherName : ''}`}>
+                      {recording.courseName && recording.courseName.toLowerCase() !== 'all courses' ? recording.courseName : ''}
+                      {recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{recording.teacherName}</> : ''}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-2 px-2">
+                      {recording.year} &bull; {recording.semester}
+                  </p>
+                  {recording.tags && recording.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3 px-2">
+                      {recording.tags.slice(0, 3).map(tag => <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5">{tag}</Badge>)}
+                      {recording.tags.length > 3 && <Badge variant="outline" className="text-xs px-1.5 py-0.5">+{recording.tags.length - 3}</Badge>}
+                      </div>
+                  )}
+              </div>
+              <div className="px-2 pb-2 mt-auto">
+                  <Button asChild size="sm" className="w-full group">
+                      <Link href={`https://www.youtube.com/watch?v=${recording.youtubeVideoId}`} target="_blank" rel="noopener noreferrer">
+                      <Youtube className="mr-2 h-4 w-4" /> View on YouTube
+                      </Link>
+                  </Button>
+              </div>
+            </div>
+          </NeonGradientCard>
+        ))}
+      </div>
+    );
+  };
+
 
   return (
     <section id="online-class-recordings" className="container mx-auto px-4">
@@ -203,7 +403,7 @@ export default function OnlineClassRecordingsSection() {
           <PlaySquare size={36} className="text-primary" /> Online Class Recordings
         </h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-          Catch up on missed lectures or review key concepts. Find recordings by year, semester, course, or teacher.
+          Find recordings by year, semester, course, or teacher. Or use search for a global lookup.
         </p>
       </div>
 
@@ -221,9 +421,9 @@ export default function OnlineClassRecordingsSection() {
                   type="text"
                   placeholder="e.g., 'DSP Lecture 5', 'Control Systems', 'Stability'"
                   value={searchTerm}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
                   className="pr-10 text-base"
-                  disabled={isLoading}
+                  disabled={isLoading && allRecordings.length === 0}
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
               </div>
@@ -232,10 +432,10 @@ export default function OnlineClassRecordingsSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
-                <Tabs value={selectedYear} onValueChange={setSelectedYear} defaultValue={baseYears[0]}>
+                <Tabs value={selectedYear} onValueChange={handleYearChange} defaultValue={baseYears[0]}>
                   <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
                     {baseYears.map(year => (
-                      <TabsTrigger key={year} value={year} disabled={isLoading}>
+                      <TabsTrigger key={year} value={year} disabled={isLoading && allRecordings.length === 0}>
                         {year.replace(' Year', '')}
                       </TabsTrigger>
                     ))}
@@ -245,10 +445,10 @@ export default function OnlineClassRecordingsSection() {
 
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1.5">Semester</label>
-                <Tabs value={selectedSemester} onValueChange={setSelectedSemester} defaultValue={baseSemesters[0]}>
+                <Tabs value={selectedSemester} onValueChange={handleSemesterChange} defaultValue={baseSemesters[0]}>
                   <TabsList className="grid w-full grid-cols-2">
                     {baseSemesters.map(sem => (
-                      <TabsTrigger key={sem} value={sem} disabled={isLoading}>
+                      <TabsTrigger key={sem} value={sem} disabled={isLoading && allRecordings.length === 0}>
                         {sem.replace(' Sem', '')}
                       </TabsTrigger>
                     ))}
@@ -262,8 +462,8 @@ export default function OnlineClassRecordingsSection() {
                 </label>
                 <Select 
                   value={selectedCourseName} 
-                  onValueChange={setSelectedCourseName} 
-                  disabled={isLoading || dynamicCourseNames.length <= 1}
+                  onValueChange={handleCourseChange} 
+                  disabled={(isLoading && allRecordings.length === 0) || dynamicCourseNames.length <= 1}
                 >
                   <SelectTrigger id="filter-recording-course">
                     <SelectValue placeholder="Select Course" />
@@ -282,8 +482,8 @@ export default function OnlineClassRecordingsSection() {
                 </label>
                 <Select 
                   value={selectedTeacherName} 
-                  onValueChange={setSelectedTeacherName} 
-                  disabled={isLoading || dynamicTeacherNames.length <= 1}
+                  onValueChange={handleTeacherChange} 
+                  disabled={(isLoading && allRecordings.length === 0) || dynamicTeacherNames.length <= 1}
                 >
                   <SelectTrigger id="filter-recording-teacher">
                     <SelectValue placeholder="Select Teacher" />
@@ -299,8 +499,8 @@ export default function OnlineClassRecordingsSection() {
 
             <div className="flex justify-end items-center mt-2">
               {activeFiltersCount > 0 && (
-                <Button variant="ghost" onClick={resetFilters} className="text-sm" disabled={isLoading}>
-                  <X size={16} className="mr-1.5" /> Clear Changed Filters ({activeFiltersCount})
+                <Button variant="ghost" onClick={resetFilters} className="text-sm" disabled={isLoading && allRecordings.length === 0}>
+                  <X size={16} className="mr-1.5" /> Clear Active Filters ({activeFiltersCount})
                 </Button>
               )}
             </div>
@@ -308,127 +508,9 @@ export default function OnlineClassRecordingsSection() {
         </CardContent>
       </Card>
 
-      {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 3 }).map((_, index) => (
-             <NeonGradientCard
-              key={`skel-${index}`}
-              className="hover:shadow-xl transition-shadow duration-300 ease-in-out"
-              neonColors={{ firstColor: '#00B4D8', secondColor: '#48CAE4' }}
-              borderRadius={12}
-            >
-                <div className="relative z-[1] flex flex-col h-full justify-between pointer-events-auto p-1">
-                    <Skeleton className="h-4 w-3/4 mb-2" />
-                    <Skeleton className="aspect-video w-full mb-2 rounded-md" />
-                    <Skeleton className="h-3 w-1/2 mb-1" />
-                    <Skeleton className="h-3 w-1/3 mb-3" />
-                     <div className="flex flex-wrap gap-1 mb-3">
-                        <Skeleton className="h-5 w-12 rounded-full" />
-                        <Skeleton className="h-5 w-16 rounded-full" />
-                    </div>
-                     <Button asChild size="sm" className="w-full group" disabled>
-                        <div className="flex items-center justify-center">
-                            <Youtube className="mr-2 h-4 w-4" /> View on YouTube
-                        </div>
-                    </Button>
-                </div>
-            </NeonGradientCard>
-          ))}
-        </div>
-      )}
-
-      {!isLoading && error && (
-         <Card className="my-12 shadow-lg border-destructive/50 bg-destructive/10">
-            <CardHeader>
-                <CardTitle className="flex items-center text-destructive">
-                    <Info size={24} className="mr-2" /> Error Loading Recordings
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-destructive-foreground/90">
-                    There was an issue fetching the recordings.
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">Details: {error}</p>
-                <Button onClick={() => window.location.reload()} className="mt-4" variant="secondary">Try Again</Button>
-            </CardContent>
-        </Card>
-      )}
-
-      {!isLoading && !error && filteredRecordings.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRecordings.map(recording => (
-            <NeonGradientCard
-              key={recording.id}
-              className="transition-shadow duration-300 ease-in-out"
-              neonColors={{ firstColor: '#00B4D8', secondColor: '#48CAE4' }}
-              borderRadius={12}
-            >
-              <div className="relative z-[1] flex flex-col h-full pointer-events-auto p-1 justify-between">
-                <div>
-                    <h3 className="text-lg font-semibold leading-tight line-clamp-2 text-foreground mb-1 px-2 pt-2" title={recording.title}>
-                        {recording.title}
-                    </h3>
-                    <div className="px-2 mb-2">
-                        <iframe
-                            width="100%"
-                            src={`https://www.youtube.com/embed/${recording.youtubeVideoId}`}
-                            title={recording.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allowFullScreen
-                            className="aspect-video rounded-md shadow-md"
-                        ></iframe>
-                    </div>
-                    {recording.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-1 px-2" title={recording.description}>
-                        {recording.description}
-                        </p>
-                    )}
-                    <p className="text-xs text-muted-foreground truncate mb-0.5 px-2" title={`${recording.courseName ? recording.courseName : ''}${recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + recording.teacherName : ''}`}>
-                        {recording.courseName && recording.courseName.toLowerCase() !== 'all courses' ? recording.courseName : ''}
-                        {recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{recording.teacherName}</> : ''}
-                    </p>
-                    <p className="text-xs text-muted-foreground mb-2 px-2">
-                        {recording.year} &bull; {recording.semester}
-                    </p>
-                    {recording.tags && recording.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3 px-2">
-                        {recording.tags.slice(0, 3).map(tag => <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5">{tag}</Badge>)}
-                        {recording.tags.length > 3 && <Badge variant="outline" className="text-xs px-1.5 py-0.5">+{recording.tags.length - 3}</Badge>}
-                        </div>
-                    )}
-                </div>
-                <div className="px-2 pb-2 mt-auto">
-                    <Button asChild size="sm" className="w-full group">
-                        <Link href={`https://www.youtube.com/watch?v=${recording.youtubeVideoId}`} target="_blank" rel="noopener noreferrer">
-                        <Youtube className="mr-2 h-4 w-4" /> View on YouTube
-                        </Link>
-                    </Button>
-                </div>
-              </div>
-            </NeonGradientCard>
-          ))}
-        </div>
-      )}
-
-      {!isLoading && !error && filteredRecordings.length === 0 && allRecordings.length > 0 && (
-         <div className="text-center py-16">
-          <Search className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
-          <p className="text-2xl font-semibold text-muted-foreground">No recordings match your current filters.</p>
-          <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections. You must select a year and semester.</p>
-        </div>
-      )}
-
-      {!isLoading && !error && allRecordings.length === 0 && (
-         <div className="text-center py-16">
-          <Info className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
-          <p className="text-2xl font-semibold text-muted-foreground">No recordings available yet.</p>
-          <p className="text-md text-muted-foreground mt-2">
-             Please check back later as new recordings are added.
-          </p>
-        </div>
-      )}
+      {renderContent()}
+      
     </section>
   );
 }
+
