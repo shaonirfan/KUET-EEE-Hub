@@ -4,15 +4,14 @@
 import React, { useState, useMemo, useEffect, type ChangeEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-// Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle are no longer directly used for resource items
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, FileText, Download, PlusCircle, FileArchive, Presentation, Filter, X, Loader2, Info, BookUser, UserSquare, ArrowRight, Eye } from 'lucide-react';
+import { Search, FileText, Download, Eye, Filter, X, Info, BookUser, UserSquare, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
-import { NeonGradientCard } from '@/components/ui/neon-gradient-card'; // Import NeonGradientCard
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'; // Keep for error message and skeleton
+import { NeonGradientCard } from '@/components/ui/neon-gradient-card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 export interface Resource {
   id: string;
@@ -30,16 +29,18 @@ export interface Resource {
   tags?: string[];
 }
 
-const years = ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year'];
-const semesters = ['All Semesters', '1st Sem', '2nd Sem'];
-const staticCategories = ['All Categories', 'Lecture Notes', 'Question Bank', 'Books', 'Uncategorized'];
+// Base options for filters (without "All")
+const baseYears = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
+const baseSemesters = ['1st Sem', '2nd Sem'];
+// Static base categories, new categories from Drive will be added dynamically
+const baseStaticCategories = ['Lecture Notes', 'Question Bank', 'Books', 'Uncategorized'].filter(Boolean);
 
 
 const getFileIcon = (type: Resource['type']) => {
   switch (type) {
     case 'PDF': return <FileText className="h-5 w-5 text-primary" />;
-    case 'DOCX': return <FileArchive className="h-5 w-5 text-primary" />;
-    case 'PPT': return <Presentation className="h-5 w-5 text-primary" />;
+    case 'DOCX': return <FileText className="h-5 w-5 text-primary" />; // Using FileText for DOCX as FileArchive might not be ideal
+    case 'PPT': return <FileText className="h-5 w-5 text-primary" />; // Using FileText for PPT as Presentation might not be ideal
     default: return <FileText className="h-5 w-5 text-primary" />;
   }
 };
@@ -50,15 +51,16 @@ export default function ResourcesSection() {
   const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedYear, setSelectedYear] = useState<string>('All Years');
-  const [selectedSemester, setSelectedSemester] = useState<string>('All Semesters');
-  const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
-  const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  // Initialize with the first option from the base lists
+  const [selectedYear, setSelectedYear] = useState<string>(baseYears[0]);
+  const [selectedSemester, setSelectedSemester] = useState<string>(baseSemesters[0]);
+  const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses'); // 'All Courses' acts as "no specific course filter"
+  const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers'); // 'All Teachers' remains
+  const [selectedCategory, setSelectedCategory] = useState<string>(baseStaticCategories[0] || '');
 
 
   const [uniqueCourseNames, setUniqueCourseNames] = useState<string[]>(['All Courses']);
-  const [uniqueCategories, setUniqueCategories] = useState<string[]>(staticCategories);
+  const [uniqueCategories, setUniqueCategories] = useState<string[]>([...baseStaticCategories]);
   const [uniqueTeacherNames, setUniqueTeacherNames] = useState<string[]>(['All Teachers']);
 
 
@@ -75,22 +77,32 @@ export default function ResourcesSection() {
         const data: Resource[] = await response.json();
         setAllResources(data);
 
-        const fetchedCourseNames = ['All Courses', ...[...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort()];
-        setUniqueCourseNames(fetchedCourseNames);
+        const fetchedCourseNamesList = [...new Set(data.map(r => r.courseName).filter(Boolean as any))].sort();
+        setUniqueCourseNames(['All Courses', ...fetchedCourseNamesList]);
         
-        let dynamicTeacherNames = [...new Set(data.map(r => r.teacherName).filter(Boolean as any) as string[])].sort();
-        if (dynamicTeacherNames.includes('All Teachers')) {
-            dynamicTeacherNames = dynamicTeacherNames.filter(tn => tn !== 'All Teachers');
-        }
-        setUniqueTeacherNames(['All Teachers', ...dynamicTeacherNames]);
+        let dynamicTeacherNamesList = [...new Set(data.map(r => r.teacherName).filter(Boolean as any) as string[])].sort();
+        dynamicTeacherNamesList = dynamicTeacherNamesList.filter(tn => tn !== 'All Teachers'); // Remove if present, will be added first
+        setUniqueTeacherNames(['All Teachers', ...dynamicTeacherNamesList]);
 
-        let dynamicCategories = [...new Set(data.map(r => r.category).filter(Boolean as any) as string[])].sort();
-        const baseCategories = staticCategories.filter(sc => sc !== 'All Categories');
+        const fetchedDynamicCategoriesList = [...new Set(data.map(r => r.category).filter(Boolean as any) as string[])].sort();
+        const currentCombinedCats = [...new Set([...baseStaticCategories, ...fetchedDynamicCategoriesList])]
+          .sort()
+          .filter(cat => cat && cat.toLowerCase() !== 'all categories'); // Ensure no "All Categories"
         
-        dynamicCategories = dynamicCategories.filter(dc => dc !== 'All Categories' && !baseCategories.includes(dc));
-        
-        const combined = [...baseCategories, ...dynamicCategories].sort();
-        setUniqueCategories(['All Categories', ...combined]);
+        setUniqueCategories(currentCombinedCats.length > 0 ? currentCombinedCats : [...baseStaticCategories]);
+
+        // Update selectedCategory if current one is not in the new list or if it was the placeholder default
+        if (currentCombinedCats.length > 0) {
+          if (!currentCombinedCats.includes(selectedCategory)) {
+            setSelectedCategory(currentCombinedCats[0]);
+          }
+        } else if (baseStaticCategories.length > 0) {
+           if (!baseStaticCategories.includes(selectedCategory)){ // If API had no categories, ensure it's from base
+             setSelectedCategory(baseStaticCategories[0]);
+           }
+        } else {
+            setSelectedCategory(''); // Fallback, though should not happen if baseStaticCategories has items
+        }
 
       } catch (err) {
         if (err instanceof Error) {
@@ -104,7 +116,8 @@ export default function ResourcesSection() {
       }
     };
     fetchResources();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array to run once on mount. selectedCategory is set internally.
 
   const filteredResources = useMemo(() => {
     if (isLoading) return [];
@@ -115,33 +128,37 @@ export default function ResourcesSection() {
         (resource.teacherName && resource.teacherName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       ) &&
-      (selectedYear !== 'All Years' ? resource.year === selectedYear : true) &&
-      (selectedSemester !== 'All Semesters' ? resource.semester === selectedSemester : true) &&
+      (selectedYear ? resource.year === selectedYear : true) && // A year will always be selected
+      (selectedSemester ? resource.semester === selectedSemester : true) && // A semester will always be selected
       (selectedCourseName !== 'All Courses' ? resource.courseName === selectedCourseName : true) &&
       (selectedTeacherName !== 'All Teachers' ? resource.teacherName === selectedTeacherName : true) &&
-      (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
+      (selectedCategory ? resource.category === selectedCategory : true) // A category will usually be selected
     );
   }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedCategory, selectedTeacherName, allResources, isLoading]);
 
+  const getDefaultCategory = () => {
+    return uniqueCategories.length > 0 ? uniqueCategories[0] : (baseStaticCategories.length > 0 ? baseStaticCategories[0] : '');
+  };
+
   const resetFilters = () => {
     setSearchTerm('');
-    setSelectedYear('All Years');
-    setSelectedSemester('All Semesters');
+    setSelectedYear(baseYears[0]);
+    setSelectedSemester(baseSemesters[0]);
     setSelectedCourseName('All Courses');
     setSelectedTeacherName('All Teachers');
-    setSelectedCategory('All Categories');
+    setSelectedCategory(getDefaultCategory());
   };
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (searchTerm) count++;
-    if (selectedYear !== 'All Years') count++;
-    if (selectedSemester !== 'All Semesters') count++;
+    if (selectedYear !== baseYears[0]) count++;
+    if (selectedSemester !== baseSemesters[0]) count++;
     if (selectedCourseName !== 'All Courses') count++;
     if (selectedTeacherName !== 'All Teachers') count++;
-    if (selectedCategory !== 'All Categories') count++;
+    if (selectedCategory !== getDefaultCategory()) count++;
     return count;
-  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory]);
+  }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory, uniqueCategories]);
 
 
   return (
@@ -180,11 +197,11 @@ export default function ResourcesSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1.5">Year</label>
-                <Tabs defaultValue="All Years" value={selectedYear} onValueChange={setSelectedYear}>
-                  <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5">
-                    {years.map(year => (
+                <Tabs value={selectedYear} onValueChange={setSelectedYear} defaultValue={baseYears[0]}>
+                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4"> {/* Adjusted grid-cols for 4 items */}
+                    {baseYears.map(year => (
                       <TabsTrigger key={year} value={year} disabled={isLoading}>
-                        {year === 'All Years' ? 'All' : year.replace(' Year', '')}
+                        {year.replace(' Year', '')}
                       </TabsTrigger>
                     ))}
                   </TabsList>
@@ -193,11 +210,11 @@ export default function ResourcesSection() {
 
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1.5">Semester</label>
-                <Tabs defaultValue="All Semesters" value={selectedSemester} onValueChange={setSelectedSemester}>
-                  <TabsList className="grid w-full grid-cols-3">
-                    {semesters.map(sem => (
+                <Tabs value={selectedSemester} onValueChange={setSelectedSemester} defaultValue={baseSemesters[0]}>
+                  <TabsList className="grid w-full grid-cols-2"> {/* Adjusted grid-cols for 2 items */}
+                    {baseSemesters.map(sem => (
                       <TabsTrigger key={sem} value={sem} disabled={isLoading}>
-                        {sem === 'All Semesters' ? 'All' : sem.replace(' Sem', '')}
+                        {sem.replace(' Sem', '')}
                       </TabsTrigger>
                     ))}
                   </TabsList>
@@ -238,22 +255,28 @@ export default function ResourcesSection() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
-                <Tabs defaultValue="All Categories" value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
-                    {uniqueCategories.map(cat => (
-                      <TabsTrigger key={cat} value={cat} className="flex-grow text-xs sm:text-sm" disabled={isLoading}>
-                        {cat === 'All Categories' ? 'All' : cat}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
+                {uniqueCategories.length > 0 && selectedCategory ? (
+                  <Tabs value={selectedCategory} onValueChange={setSelectedCategory} defaultValue={getDefaultCategory()}>
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
+                      {uniqueCategories.map(cat => (
+                        <TabsTrigger key={cat} value={cat} className="flex-grow text-xs sm:text-sm" disabled={isLoading}>
+                          {cat}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </Tabs>
+                ) : isLoading ? (
+                   <Skeleton className="h-10 w-full" />
+                ) : (
+                  <p className="text-sm text-muted-foreground">No categories available.</p>
+                )}
               </div>
             </div>
 
             <div className="flex justify-end items-center mt-2">
               {activeFiltersCount > 0 && (
                 <Button variant="ghost" onClick={resetFilters} className="text-sm" disabled={isLoading}>
-                  <X size={16} className="mr-1.5" /> Clear Selections ({activeFiltersCount})
+                  <X size={16} className="mr-1.5" /> Clear Changed Filters ({activeFiltersCount})
                 </Button>
               )}
             </div>
@@ -264,7 +287,6 @@ export default function ResourcesSection() {
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
-            // Skeleton remains a standard Card for simplicity
             <Card key={index} className="flex flex-col bg-card"> 
               <CardHeader className="pb-3">
                 <Skeleton className="h-5 w-5 mb-2" />
@@ -278,7 +300,7 @@ export default function ResourcesSection() {
                   <Skeleton className="h-5 w-16 rounded-full" />
                 </div>
               </CardContent>
-              <div className="p-6 pt-0 flex gap-2"> {/* Mimic CardFooter structure for Skeleton */}
+              <div className="p-6 pt-0 flex gap-2">
                 <Skeleton className="h-9 flex-1" />
                 <Skeleton className="h-9 flex-1" />
               </div>
@@ -300,7 +322,7 @@ export default function ResourcesSection() {
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">Details: {error}</p>
                 <ul className="text-sm text-muted-foreground mt-3 list-disc list-inside">
-                    <li>Ensure the `GOOGLE_DRIVE_FOLDER_ID` in the backend code (`src/app/api/resources/route.ts`) is correctly set.</li>
+                    <li>Ensure the `GOOGLE_DRIVE_FOLDER_ID` in your environment variables is correctly set.</li>
                     <li>Make sure your Google Drive folder is shared with the service account email with "Viewer" permissions.</li>
                     <li>Verify your folder structure (e.g. Year/Semester/Course/Category/Teacher/file.ext).</li>
                 </ul>
@@ -331,7 +353,7 @@ export default function ResourcesSection() {
                     {resource.name}
                   </h3>
                   <p className="text-xs text-muted-foreground truncate mb-0.5" title={`${resource.courseName ? resource.courseName : ''}${resource.category ? ' • ' + resource.category : ''}${resource.teacherName && resource.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + resource.teacherName : ''}`}>
-                    {resource.courseName ? resource.courseName : ''}
+                    {resource.courseName && resource.courseName.toLowerCase() !== 'all courses' ? resource.courseName : ''}
                     {resource.category ? <><span className="mx-1">&bull;</span>{resource.category}</> : ''}
                     {resource.teacherName && resource.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{resource.teacherName}</> : ''}
                   </p>
@@ -370,7 +392,7 @@ export default function ResourcesSection() {
          <div className="text-center py-16">
           <Search className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
           <p className="text-2xl font-semibold text-muted-foreground">No resources match your current filters.</p>
-          <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections.</p>
+          <p className="text-md text-muted-foreground mt-2">Try adjusting your search or selections. You must select a year, semester and category.</p>
         </div>
       )}
 
@@ -379,7 +401,7 @@ export default function ResourcesSection() {
           <Info className="h-20 w-20 text-muted-foreground/50 mx-auto mb-6" />
           <p className="text-2xl font-semibold text-muted-foreground">No resources found in Google Drive.</p>
           <p className="text-md text-muted-foreground mt-2">
-             Ensure files are present in the configured Google Drive folder (`{GOOGLE_DRIVE_FOLDER_ID}`)
+             Ensure files are present in the configured Google Drive folder
              and follow the structure: Year/Semester/Course/Category/Teacher/file.ext.
              Also, check sharing permissions.
           </p>
@@ -389,4 +411,3 @@ export default function ResourcesSection() {
   );
 }
 
-    
