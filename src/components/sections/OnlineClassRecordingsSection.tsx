@@ -25,16 +25,14 @@ export interface Recording {
   description?: string;
 }
 
-// Base options for filters (consistent with ResourcesSection)
 const baseYears = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
 const baseSemesters = ['1st Sem', '2nd Sem'];
 
-// Mock data for recordings - replace with actual data fetching later
 const mockRecordings: Recording[] = [
   {
     id: 'rec1',
     title: 'Introduction to VLSI Design - Lecture 1',
-    youtubeVideoId: 'mR_p9L3m6tE', // Example video ID
+    youtubeVideoId: 'mR_p9L3m6tE',
     year: '3rd Year',
     semester: '1st Sem',
     courseName: 'EEE3101 VLSI Design I',
@@ -45,7 +43,7 @@ const mockRecordings: Recording[] = [
   {
     id: 'rec2',
     title: 'Digital Signal Processing - Filters',
-    youtubeVideoId: 'yG-SzL2m6qM', // Example video ID
+    youtubeVideoId: 'yG-SzL2m6qM',
     year: '3rd Year',
     semester: '2nd Sem',
     courseName: 'EEE3203 Digital Signal Processing',
@@ -56,7 +54,7 @@ const mockRecordings: Recording[] = [
   {
     id: 'rec3',
     title: 'Communication Systems - Modulation Techniques',
-    youtubeVideoId: 'dQw4w9WgXcQ', // Example: Rick Astley (use a real educational one)
+    youtubeVideoId: 'dQw4w9WgXcQ',
     year: '4th Year',
     semester: '1st Sem',
     courseName: 'EEE4103 Communication Systems',
@@ -67,7 +65,7 @@ const mockRecordings: Recording[] = [
    {
     id: 'rec4',
     title: 'Power Electronics - Converters',
-    youtubeVideoId: '3JZ_D3ELwOQ', // Example video ID for Power Electronics
+    youtubeVideoId: '3JZ_D3ELwOQ',
     year: '4th Year',
     semester: '1st Sem',
     courseName: 'EEE4105 Power Electronics',
@@ -78,7 +76,7 @@ const mockRecordings: Recording[] = [
   {
     id: 'rec5',
     title: 'Control Systems - Stability Analysis',
-    youtubeVideoId: '0VIY2x511pk', // Example video ID for Control Systems
+    youtubeVideoId: '0VIY2x511pk',
     year: '3rd Year',
     semester: '2nd Sem',
     courseName: 'EEE3205 Control Systems',
@@ -92,17 +90,28 @@ const mockRecordings: Recording[] = [
     youtubeVideoId: '2VHFELPIPNQ',
     year: '4th Year',
     semester: '1st Sem',
-    courseName: 'EE 4105 - Communication Engineering 2',
+    courseName: 'EE 4105 - Communication Engineering 2', // Note: This course name slightly differs from rec4
     teacherName: 'Prof MD Rafiqul Islam Sir (RI1)',
     tags: ['communication', 'engineering', 'ee4105', 'rafiqul islam'],
     description: 'Lecture on Communication Engineering 2 by Prof MD Rafiqul Islam Sir.'
-  }
+  },
+  {
+    id: 'rec7',
+    title: 'VLSI Design - Advanced Topics',
+    youtubeVideoId: 'exampleVideoId7',
+    year: '3rd Year',
+    semester: '1st Sem',
+    courseName: 'EEE3101 VLSI Design I', // Same course as rec1
+    teacherName: 'Dr. Example Teacher E', // Different teacher for the same course
+    tags: ['vlsi', 'advanced', 'fabrication'],
+    description: 'Advanced topics in VLSI, including fabrication processes.'
+  },
 ];
 
 
 export default function OnlineClassRecordingsSection() {
   const [allRecordings, setAllRecordings] = useState<Recording[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Simulate loading
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -111,24 +120,47 @@ export default function OnlineClassRecordingsSection() {
   const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
   const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
 
-  const [uniqueCourseNames, setUniqueCourseNames] = useState<string[]>(['All Courses']);
-  const [uniqueTeacherNames, setUniqueTeacherNames] = useState<string[]>(['All Teachers']);
-
   useEffect(() => {
-    // Simulate fetching data
     setIsLoading(true);
     setError(null);
     setTimeout(() => {
       setAllRecordings(mockRecordings);
-      const fetchedCourseNamesList = [...new Set(mockRecordings.map(r => r.courseName).filter(Boolean as any) as string[])].sort();
-      setUniqueCourseNames(['All Courses', ...fetchedCourseNamesList]);
-
-      let dynamicTeacherNamesList = [...new Set(mockRecordings.map(r => r.teacherName).filter(Boolean as any) as string[])].sort();
-      dynamicTeacherNamesList = dynamicTeacherNamesList.filter(tn => tn !== 'All Teachers');
-      setUniqueTeacherNames(['All Teachers', ...dynamicTeacherNamesList]);
       setIsLoading(false);
-    }, 1000); // Simulate network delay
+    }, 1000);
   }, []);
+
+  const dynamicCourseNames = useMemo(() => {
+    if (isLoading || !selectedYear || !selectedSemester) return ['All Courses'];
+    const courses = new Set<string>();
+    allRecordings
+      .filter(r => r.year === selectedYear && r.semester === selectedSemester && r.courseName)
+      .forEach(r => courses.add(r.courseName!));
+    return ['All Courses', ...Array.from(courses).sort()];
+  }, [allRecordings, selectedYear, selectedSemester, isLoading]);
+
+  const dynamicTeacherNames = useMemo(() => {
+    if (isLoading || !selectedYear || !selectedSemester) return ['All Teachers'];
+    const teachers = new Set<string>();
+    allRecordings
+      .filter(r =>
+        r.year === selectedYear &&
+        r.semester === selectedSemester &&
+        (selectedCourseName === 'All Courses' || r.courseName === selectedCourseName) &&
+        r.teacherName
+      )
+      .forEach(r => teachers.add(r.teacherName!));
+    return ['All Teachers', ...Array.from(teachers).sort()];
+  }, [allRecordings, selectedYear, selectedSemester, selectedCourseName, isLoading]);
+
+  useEffect(() => {
+    setSelectedCourseName('All Courses');
+    // Teacher name will be reset by the effect below
+  }, [selectedYear, selectedSemester]);
+
+  useEffect(() => {
+    setSelectedTeacherName('All Teachers');
+  }, [selectedCourseName, selectedYear, selectedSemester]); // also depend on year/sem in case course list becomes empty
+
 
   const filteredRecordings = useMemo(() => {
     if (isLoading) return [];
@@ -150,8 +182,8 @@ export default function OnlineClassRecordingsSection() {
     setSearchTerm('');
     setSelectedYear(baseYears[0]);
     setSelectedSemester(baseSemesters[0]);
-    setSelectedCourseName('All Courses');
-    setSelectedTeacherName('All Teachers');
+    // setSelectedCourseName('All Courses'); // This will be reset by the useEffect for year/semester change
+    // setSelectedTeacherName('All Teachers'); // This will be reset by the useEffect for course change
   };
 
   const activeFiltersCount = useMemo(() => {
@@ -228,12 +260,16 @@ export default function OnlineClassRecordingsSection() {
                 <label htmlFor="filter-recording-course" className="block text-sm font-medium text-muted-foreground mb-1.5">
                   <BookUser size={16} className="inline mr-1.5 relative -top-px" />Course Name
                 </label>
-                <Select value={selectedCourseName} onValueChange={setSelectedCourseName} disabled={isLoading || uniqueCourseNames.length <= 1}>
+                <Select 
+                  value={selectedCourseName} 
+                  onValueChange={setSelectedCourseName} 
+                  disabled={isLoading || dynamicCourseNames.length <= 1}
+                >
                   <SelectTrigger id="filter-recording-course">
                     <SelectValue placeholder="Select Course" />
                   </SelectTrigger>
                   <SelectContent>
-                    {uniqueCourseNames.map(course => (
+                    {dynamicCourseNames.map(course => (
                       <SelectItem key={course} value={course}>{course}</SelectItem>
                     ))}
                   </SelectContent>
@@ -244,12 +280,16 @@ export default function OnlineClassRecordingsSection() {
                 <label htmlFor="filter-recording-teacher" className="block text-sm font-medium text-muted-foreground mb-1.5">
                   <UserSquare size={16} className="inline mr-1.5 relative -top-px" />Teacher Name
                 </label>
-                <Select value={selectedTeacherName} onValueChange={setSelectedTeacherName} disabled={isLoading || uniqueTeacherNames.length <= 1}>
+                <Select 
+                  value={selectedTeacherName} 
+                  onValueChange={setSelectedTeacherName} 
+                  disabled={isLoading || dynamicTeacherNames.length <= 1}
+                >
                   <SelectTrigger id="filter-recording-teacher">
                     <SelectValue placeholder="Select Teacher" />
                   </SelectTrigger>
                   <SelectContent>
-                    {uniqueTeacherNames.map(teacher => (
+                    {dynamicTeacherNames.map(teacher => (
                       <SelectItem key={teacher} value={teacher}>{teacher}</SelectItem>
                     ))}
                   </SelectContent>
@@ -392,6 +432,3 @@ export default function OnlineClassRecordingsSection() {
     </section>
   );
 }
-
-
-    
