@@ -100,6 +100,16 @@ const mockRecordings: Recording[] = [
  courseName: 'EE 4105 - Communication Engineering-II',
  tags: ['lecture-07', 'ISDN', 'RI1', 'Rafiq Sir'],
   },
+ {
+    id: 'rec16',
+ title: 'Lecture-01',
+ youtubeVideoId: 'CsVwv3bC07s',
+ year: '4th Year',
+    semester: '1st Sem',
+    courseName: 'EE 4105 - Communication Engineering-II',
+    teacherName: 'Mostafa Zaman Sir (MZC)',
+    tags: ['communication', 'mostafa', 'mzc', 'lecture-01'],
+  },
 ];
 
 
