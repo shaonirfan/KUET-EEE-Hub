@@ -22,7 +22,6 @@ export interface Recording {
   courseName?: string;
   teacherName?: string;
   tags?: string[];
-  description?: string;
 }
 
 const baseYears = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
@@ -38,7 +37,6 @@ const mockRecordings: Recording[] = [
     courseName: 'EEE3101 VLSI Design I',
     teacherName: 'Dr. Example Teacher A',
     tags: ['vlsi', 'intro', 'semiconductor'],
-    description: 'First lecture covering the basics of VLSI technology and design methodologies.'
   },
   {
     id: 'rec2',
@@ -49,7 +47,6 @@ const mockRecordings: Recording[] = [
     courseName: 'EEE3203 Digital Signal Processing',
     teacherName: 'Prof. Example Teacher B',
     tags: ['dsp', 'filters', 'digital'],
-    description: 'In-depth discussion on various types of digital filters and their applications.'
   },
   {
     id: 'rec3',
@@ -60,7 +57,6 @@ const mockRecordings: Recording[] = [
     courseName: 'EEE4103 Communication Systems',
     teacherName: 'Dr. Example Teacher C',
     tags: ['communication', 'modulation', 'am-fm'],
-    description: 'Exploring AM, FM, and PM modulation techniques in communication systems.'
   },
    {
     id: 'rec4',
@@ -71,7 +67,6 @@ const mockRecordings: Recording[] = [
     courseName: 'EEE4105 Power Electronics',
     teacherName: 'Prof. Example Teacher D',
     tags: ['power-electronics', 'converters', 'dc-dc'],
-    description: 'Detailed analysis of DC-DC converters and their applications in power systems.'
   },
   {
     id: 'rec5',
@@ -82,7 +77,6 @@ const mockRecordings: Recording[] = [
     courseName: 'EEE3205 Control Systems',
     teacherName: 'Dr. Example Teacher A',
     tags: ['control-systems', 'stability', 'nyquist'],
-    description: 'Understanding stability criteria like Routh-Hurwitz and Nyquist plots for control systems.'
   },
   {
     id: 'rec6',
@@ -93,7 +87,6 @@ const mockRecordings: Recording[] = [
     courseName: 'EE 4105 - Communication Engineering 2', 
     teacherName: 'Prof MD Rafiqul Islam Sir (RI1)',
     tags: ['communication', 'engineering', 'ee4105', 'rafiqul islam'],
-    description: 'Lecture on Communication Engineering 2 by Prof MD Rafiqul Islam Sir.'
   },
   {
     id: 'rec7',
@@ -104,7 +97,6 @@ const mockRecordings: Recording[] = [
     courseName: 'EEE3101 VLSI Design I', 
     teacherName: 'Dr. Example Teacher E', 
     tags: ['vlsi', 'advanced', 'fabrication'],
-    description: 'Advanced topics in VLSI, including fabrication processes.'
   },
 ];
 
@@ -362,11 +354,6 @@ export default function OnlineClassRecordingsSection() {
                           className="aspect-video rounded-md shadow-md"
                       ></iframe>
                   </div>
-                  {recording.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-2 mb-1 px-2" title={recording.description}>
-                      {recording.description}
-                      </p>
-                  )}
                   <p className="text-xs text-muted-foreground truncate mb-0.5 px-2" title={`${recording.courseName ? recording.courseName : ''}${recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + recording.teacherName : ''}`}>
                       {recording.courseName && recording.courseName.toLowerCase() !== 'all courses' ? recording.courseName : ''}
                       {recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{recording.teacherName}</> : ''}
