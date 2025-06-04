@@ -86,6 +86,17 @@ const mockRecordings: Recording[] = [
     tags: ['control-systems', 'stability', 'nyquist'],
     description: 'Understanding stability criteria like Routh-Hurwitz and Nyquist plots for control systems.'
   },
+  {
+    id: 'rec6',
+    title: 'EE 4105 - Communication Engineering 2 Lecture',
+    youtubeVideoId: '2VHFELPIPNQ',
+    year: '4th Year',
+    semester: '1st Sem',
+    courseName: 'EE 4105 - Communication Engineering 2',
+    teacherName: 'Prof MD Rafiqul Islam Sir (RI1)',
+    tags: ['communication', 'engineering', 'ee4105', 'rafiqul islam'],
+    description: 'Lecture on Communication Engineering 2 by Prof MD Rafiqul Islam Sir.'
+  }
 ];
 
 
