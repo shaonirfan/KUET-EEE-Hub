@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NeonGradientCard } from '@/components/ui/neon-gradient-card';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { LazyYouTube } from '@/components/ui/LazyYouTube';
 
 export interface Recording {
   id: string;
@@ -2001,6 +2002,7 @@ export default function OnlineClassRecordingsSection() {
   const [selectedSemester, setSelectedSemester] = useState<string>(baseSemesters[0]);
   const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
   const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsLoading(true);
@@ -2225,7 +2227,7 @@ export default function OnlineClassRecordingsSection() {
     // If we reach here, display filtered recordings
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredRecordings.map(recording => (
+        {filteredRecordings.map((recording: Recording) => (
           <NeonGradientCard
             key={recording.id}
             className="transition-shadow duration-300 ease-in-out"
@@ -2234,41 +2236,38 @@ export default function OnlineClassRecordingsSection() {
           >
             <div className="relative z-[1] flex flex-col h-full pointer-events-auto p-1 justify-between">
               <div>
-                  <h3 className="text-lg font-semibold leading-tight line-clamp-2 text-foreground mb-1 px-2 pt-2" title={recording.title}>
-                      {recording.title}
-                  </h3>
-                  <div className="px-2 mb-2">
-                      <iframe
-                          width="100%"
-                          src={`https://www.youtube.com/embed/${recording.youtubeVideoId}`}
-                          title={recording.title}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allowFullScreen
-                          className="aspect-video rounded-md shadow-md"
-                      ></iframe>
+                <h3 className="text-lg font-semibold leading-tight line-clamp-2 text-foreground mb-1 px-2 pt-2" title={recording.title}>
+                  {recording.title}
+                </h3>
+                <div className="px-2 mb-2">
+                  <LazyYouTube
+                    videoId={recording.youtubeVideoId}
+                    title={recording.title}
+                    className="aspect-video rounded-md shadow-md"
+                    isActive={activeVideoId === recording.youtubeVideoId}
+                    onActivate={() => setActiveVideoId(recording.youtubeVideoId)}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground truncate mb-0.5 px-2" title={`${recording.courseName ? recording.courseName : ''}${recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + recording.teacherName : ''}`}>
+                  {recording.courseName && recording.courseName.toLowerCase() !== 'all courses' ? recording.courseName : ''}
+                  {recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{recording.teacherName}</> : ''}
+                </p>
+                <p className="text-xs text-muted-foreground mb-2 px-2">
+                  {recording.year} &bull; {recording.semester}
+                </p>
+                {recording.tags && recording.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-3 px-2">
+                    {recording.tags.slice(0, 3).map((tag: string) => <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5">{tag}</Badge>)}
+                    {recording.tags.length > 3 && <Badge variant="outline" className="text-xs px-1.5 py-0.5">+{recording.tags.length - 3}</Badge>}
                   </div>
-                  <p className="text-xs text-muted-foreground truncate mb-0.5 px-2" title={`${recording.courseName ? recording.courseName : ''}${recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? ' • ' + recording.teacherName : ''}`}>
-                      {recording.courseName && recording.courseName.toLowerCase() !== 'all courses' ? recording.courseName : ''}
-                      {recording.teacherName && recording.teacherName.toLowerCase() !== 'all teachers' ? <><span className="mx-1">&bull;</span>{recording.teacherName}</> : ''}
-                  </p>
-                  <p className="text-xs text-muted-foreground mb-2 px-2">
-                      {recording.year} &bull; {recording.semester}
-                  </p>
-                  {recording.tags && recording.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3 px-2">
-                      {recording.tags.slice(0, 3).map(tag => <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5">{tag}</Badge>)}
-                      {recording.tags.length > 3 && <Badge variant="outline" className="text-xs px-1.5 py-0.5">+{recording.tags.length - 3}</Badge>}
-                      </div>
-                  )}
+                )}
               </div>
               <div className="px-2 pb-2 mt-auto">
-                  <Button asChild size="sm" className="w-full group">
-                      <Link href={`https://www.youtube.com/watch?v=${recording.youtubeVideoId}`} target="_blank" rel="noopener noreferrer">
-                      <Youtube className="mr-2 h-4 w-4" /> View on YouTube
-                      </Link>
-                  </Button>
+                <Button asChild size="sm" className="w-full group">
+                  <Link href={`https://www.youtube.com/watch?v=${recording.youtubeVideoId}`} target="_blank" rel="noopener noreferrer">
+                    <Youtube className="mr-2 h-4 w-4" /> View on YouTube
+                  </Link>
+                </Button>
               </div>
             </div>
           </NeonGradientCard>
