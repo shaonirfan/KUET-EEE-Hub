@@ -1,4 +1,3 @@
-
 'use client'; // Required because NavBar uses hooks like useState, useEffect
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -11,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 // import ChatbotWidget from '@/components/chatbot/ChatbotWidget'; // Removed
 import { NavBar } from "@/components/ui/tubelight-navbar"; // Import NavBar
 import { Home, FileText, Mail, PlaySquare } from 'lucide-react'; // Import icons, Added PlaySquare
+import { ExpandableChatDemo } from '@/components/ui/expandable-chat-demo';
 
 
 const navBarItems = [
@@ -45,6 +45,7 @@ export default function HomePage() {
         </div>
         <ContactSection />
       </main>
+      <ExpandableChatDemo />
       {/* <ChatbotWidget /> // Removed */}
       <Footer />
     </div>
