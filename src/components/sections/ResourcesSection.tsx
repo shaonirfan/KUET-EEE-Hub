@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect, type ChangeEvent } from 'react';
@@ -21,11 +20,12 @@ export interface Resource {
   semester: string;
   courseName?: string;
   teacherName?: string;
-  category: string;
+  category?: string;
   isNew: boolean;
   isPopular: boolean;
   viewUrl: string;
   downloadUrl: string;
+  webViewLink: string;
   tags?: string[];
 }
 
@@ -52,7 +52,7 @@ export default function ResourcesSection() {
   const [selectedSemester, setSelectedSemester] = useState<string>(baseSemesters[0]);
   const [selectedCourseName, setSelectedCourseName] = useState<string>('All Courses');
   const [selectedTeacherName, setSelectedTeacherName] = useState<string>('All Teachers');
-  const [selectedCategory, setSelectedCategory] = useState<string>(''); 
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -163,7 +163,7 @@ export default function ResourcesSection() {
   }, [allResources, selectedYear, selectedSemester, selectedCourseName]);
   
   const dynamicCategories = useMemo(() => {
-    if (!selectedYear || !selectedSemester) return [];
+    if (!selectedYear || !selectedSemester) return ['All Categories'];
     const categories = new Set<string>();
     allResources
       .filter(r =>
@@ -174,7 +174,7 @@ export default function ResourcesSection() {
         r.category
       )
       .forEach(r => categories.add(r.category!));
-    return Array.from(categories).sort();
+    return ['All Categories', ...Array.from(categories).sort()];
   }, [allResources, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName]);
 
   useEffect(() => {
@@ -202,15 +202,12 @@ export default function ResourcesSection() {
         resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     } else {
-      // Filter-based mode (search term is empty)
-      // If !userHasInteracted, display logic will show a prompt, so this calculation is for when userHasInteracted
-      // or for populating filter counts/default selections indirectly.
       return allResources.filter(resource =>
         (selectedYear ? resource.year === selectedYear : true) &&
         (selectedSemester ? resource.semester === selectedSemester : true) &&
         (selectedCourseName !== 'All Courses' ? resource.courseName === selectedCourseName : true) &&
         (selectedTeacherName !== 'All Teachers' ? resource.teacherName === selectedTeacherName : true) &&
-        (selectedCategory ? resource.category === selectedCategory : true)
+        (selectedCategory !== 'All Categories' ? resource.category === selectedCategory : true)
       );
     }
   }, [searchTerm, selectedYear, selectedSemester, selectedCourseName, selectedTeacherName, selectedCategory, allResources]);
@@ -386,18 +383,30 @@ export default function ResourcesSection() {
               </div>
 
               <div className="px-2 pb-2 mt-auto"> 
-                <Button asChild size="sm" className="flex-1 group w-full mb-1.5">
-                  <Link href={resource.downloadUrl} target="_blank" rel="noopener noreferrer">
+                {resource.downloadUrl ? (
+                  <Button asChild size="sm" className="flex-1 group w-full mb-1.5">
+                    <Link href={resource.downloadUrl} target="_blank" rel="noopener noreferrer">
+                      Download
+                      <Download className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button size="sm" className="flex-1 w-full mb-1.5" disabled>
                     Download
-                    <Download className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm" className="flex-1 group w-full">
-                  <Link href={resource.viewUrl} target="_blank" rel="noopener noreferrer">
+                  </Button>
+                )}
+                {resource.webViewLink ? (
+                  <Button asChild variant="outline" size="sm" className="flex-1 group w-full">
+                    <Link href={resource.webViewLink} target="_blank" rel="noopener noreferrer">
+                      View
+                      <Eye className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" className="flex-1 w-full" disabled>
                     View
-                    <Eye className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                  </Button>
+                )}
               </div>
             </div>
           </NeonGradientCard>
@@ -511,7 +520,7 @@ export default function ResourcesSection() {
                 <label className="block text-sm font-medium text-muted-foreground mb-1.5">Category</label>
                 {(isLoading && allResources.length === 0) ? (
                    <Skeleton className="h-10 w-full rounded-md" />
-                ) : dynamicCategories.length > 0 && selectedCategory ? (
+                ) : dynamicCategories.length > 0 ? (
                   <Tabs value={selectedCategory} onValueChange={handleCategoryChange} defaultValue={dynamicCategories[0]}>
                     <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-fluid gap-1 h-auto flex-wrap" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
                       {dynamicCategories.map(cat => (

@@ -16,6 +16,18 @@ interface UseChatReturn {
   sendMessage: (input: string) => Promise<void>;
 }
 
+function getOrCreateChatId() {
+  let chatId = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('chat_id='))
+    ?.split('=')[1];
+  if (!chatId) {
+    chatId = crypto.randomUUID();
+    document.cookie = `chat_id=${chatId}; path=/; max-age=31536000`;
+  }
+  return chatId;
+}
+
 export function useChat(): UseChatReturn {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,10 +42,11 @@ export function useChat(): UseChatReturn {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
     try {
+      const chatId = getOrCreateChatId();
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: input, chat_id: chatId }),
       });
       const data = await res.text(); // Expect plain text or HTML
       if (data) {

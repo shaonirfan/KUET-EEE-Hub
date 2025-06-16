@@ -5,7 +5,7 @@ const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/we
 
 export async function POST(req: Request) {
   try {
-    const { message: userMessage, context } = await req.json();
+    const { message: userMessage, context, chat_id } = await req.json();
 
     // Call n8n webhook
     const response = await fetch(N8N_WEBHOOK_URL, {
@@ -16,6 +16,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         message: userMessage,
         context,
+        chat_id,
         timestamp: new Date().toISOString(),
       }),
     });
