@@ -8,6 +8,16 @@ import { motion } from "framer-motion";
 import React from "react"; // Added React import for JSX
 
 export default function HeroSection() {
+  const handleChatClick = () => {
+    // Find and click the expandable chat toggle button
+    // The button is a rounded button with either Bot or X icon
+    const chatToggle = document.querySelector('button.w-14.h-14.rounded-full');
+    
+    if (chatToggle instanceof HTMLElement) {
+      chatToggle.click();
+    }
+  };
+
   return (
     // The <section id="hero"> and outer styling is removed as AuroraBackground provides its own structure
     // The pt-16 pb-20 etc. paddings are also removed; AuroraBackground centers content by default in its h-[100vh]
@@ -38,11 +48,14 @@ export default function HeroSection() {
               <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="group shadow-md hover:shadow-accent/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 bg-transparent dark:bg-transparent border-foreground/50 hover:border-primary dark:border-white/50 dark:hover:border-primary text-foreground dark:text-white hover:text-primary dark:hover:text-primary">
-            <Link href="https://t.me/eee_20_bot" target="_blank" rel="noopener noreferrer">
-              Chat with EEE'20 Bot
-              <Send className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
-            </Link>
+          <Button 
+            onClick={handleChatClick}
+            variant="outline" 
+            size="lg" 
+            className="group shadow-md hover:shadow-accent/30 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 bg-transparent dark:bg-transparent border-foreground/50 hover:border-primary dark:border-white/50 dark:hover:border-primary text-foreground dark:text-white hover:text-primary dark:hover:text-primary"
+          >
+            Chat with AI Powered Bot
+            <Send className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
           </Button>
         </div>
 
